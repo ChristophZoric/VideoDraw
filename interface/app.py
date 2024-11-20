@@ -6,6 +6,7 @@ import argparse
 import itertools
 from collections import Counter
 from collections import deque
+import subprocess
 
 import cv2 as cv
 import numpy as np
@@ -15,6 +16,7 @@ from utils import CvFpsCalc
 from model import KeyPointClassifier
 from model import PointHistoryClassifier
 
+import subprocess
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -119,8 +121,15 @@ def main():
         if key == ord('q'):  # ESC
             break
 
-        if key == ord('d'):
-            print(annotations)
+        if key == 13:
+            with open("../src/annotations_data.txt", "w") as f:
+                f.write(str(annotations))
+                f.flush()
+            
+            script_path = '../src/convert_np.py'
+
+            subprocess.run(['python', script_path])
+            break
 
         number, mode = select_mode(key, mode)
 
@@ -163,7 +172,7 @@ def main():
                     annotationStart = False
 
                 elif hand_sign_id == 1:  # Draw gesture
-                    if buffer_counter >= 0 and buffer_counter <= 3:
+                    if buffer_counter >= 0 and buffer_counter <= 5:
                         buffer_counter = -1
                         if lastDel is True:
                             annotationNumber += 1
