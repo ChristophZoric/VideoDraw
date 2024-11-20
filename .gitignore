@@ -1,0 +1,4 @@
+venv
+src/_pycache_
+src/save_model
+data
