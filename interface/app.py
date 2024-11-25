@@ -86,14 +86,14 @@ def main():
     point_history_classifier = PointHistoryClassifier()
 
     # Read labels ###########################################################
-    with open('model/keypoint_classifier/keypoint_classifier_label.csv',
+    with open('interface/model/keypoint_classifier/keypoint_classifier_label.csv',
               encoding='utf-8-sig') as f:
         keypoint_classifier_labels = csv.reader(f)
         keypoint_classifier_labels = [
             row[0] for row in keypoint_classifier_labels
         ]
     with open(
-            'model/point_history_classifier/point_history_classifier_label.csv',
+            'interface/model/point_history_classifier/point_history_classifier_label.csv',
             encoding='utf-8-sig') as f:
         point_history_classifier_labels = csv.reader(f)
         point_history_classifier_labels = [
@@ -124,10 +124,10 @@ def main():
             break
 
         if key == 13:
-            script_path = '../src/convert_np.py'
+            script_path = 'classification/convert_np.py'
             print("annotations: ", annotations)
             try:
-                with open("../src/annotations_data.txt", "w") as f:
+                with open("classification/annotations_data.txt", "w") as f:
                     f.write(str(annotations))
                     f.flush()
                 subprocess.run(['python', script_path], check=True)
