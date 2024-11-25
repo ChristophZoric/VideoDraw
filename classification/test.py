@@ -3,7 +3,7 @@ from tensorflow.keras.models import load_model
 
 class Predictor:
     @staticmethod
-    def load_and_test_coordinates(np_file_path, model_path='./saved_model/coordinate_model.h5'):
+    def load_and_test_coordinates(np_file_path, model_path='classification/saved_model/coordinate_model.h5'):
         model = load_model(model_path)
 
         # Koordinatenbild laden und in das Modell-Format umwandeln

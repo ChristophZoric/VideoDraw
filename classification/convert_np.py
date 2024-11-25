@@ -5,7 +5,7 @@ import re
 from test import Predictor
 from tensorflow.keras.models import load_model
 
-file_path = './annotations_data.txt'
+file_path = 'classification/annotations_data.txt'
 with open(file_path, 'r') as file:
     content = file.read()
 
@@ -26,8 +26,8 @@ for segment in coordinates:
         image[y_scaled, x_scaled] = 255 
 
 flattened_image = image.flatten()
-np.save('./converted_data.npy', image)
-Predictor.load_and_test_coordinates('./converted_data.npy')
+np.save('classification/converted_data.npy', image)
+Predictor.load_and_test_coordinates('classification/converted_data.npy')
 
 # Optional: Bild anzeigen (zur ÃœberprÃ¼fung)
 plt.imshow(image, cmap='gray')
