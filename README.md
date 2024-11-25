@@ -6,7 +6,8 @@
 - install requirements.txt via pip
 
 ## How to start
-To run app, python3 interface/app.py
+- To run app, python3 interface/app.py
+- in general, every executable needs to be executed from root
 
 ## Interface
 Drawing Interface for User with 4 possible hand gestures:
