@@ -2,9 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import ast
 import re
+from test import Predictor
 from tensorflow.keras.models import load_model
 
-file_path = '/home/mooyil/Downloads/message(1).txt'
+file_path = '/home/rafaelcanete/Uni/3Semester/DeepLearning/VideoDraw/src/annotations_data.txt'
 with open(file_path, 'r') as file:
     content = file.read()
 
@@ -25,7 +26,8 @@ for segment in coordinates:
         image[y_scaled, x_scaled] = 255 
 
 flattened_image = image.flatten()
-np.save('/home/mooyil/vscode-workspace/koordinaten_klassifikation/predict_data/test_image.npy', image)
+np.save('/home/rafaelcanete/Uni/3Semester/DeepLearning/VideoDraw/predict_data/predicted_data.npy', image)
+Predictor.load_and_test_coordinates('/home/rafaelcanete/Uni/3Semester/DeepLearning/VideoDraw/predict_data/predicted_data.npy')
 
 # Optional: Bild anzeigen (zur ÃœberprÃ¼fung)
 plt.imshow(image, cmap='gray')

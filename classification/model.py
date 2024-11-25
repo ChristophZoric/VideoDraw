@@ -20,7 +20,7 @@ def build_model(input_shape=(28, 28, 1), num_classes=3):
     return model
 
 if __name__ == "__main__":
-    data_dir = '/home/christoph/Documents/DeepLearning/data'  # Der Ordner mit den .npy-Dateien
+    data_dir = '/home/rafaelcanete/Uni/3Semester/DeepLearning/VideoDraw/data'  # Der Ordner mit den .npy-Dateien
     (train_data, train_labels), (val_data, val_labels) = load_and_preprocess_data(data_dir)
 
     

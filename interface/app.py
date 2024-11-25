@@ -7,6 +7,7 @@ import itertools
 from collections import Counter
 from collections import deque
 import subprocess
+import traceback
 
 import cv2 as cv
 import numpy as np
@@ -17,6 +18,7 @@ from model import KeyPointClassifier
 from model import PointHistoryClassifier
 
 import subprocess
+
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -122,13 +124,16 @@ def main():
             break
 
         if key == 13:
-            with open("../src/annotations_data.txt", "w") as f:
-                f.write(str(annotations))
-                f.flush()
-            
             script_path = '../src/convert_np.py'
-
-            subprocess.run(['python', script_path])
+            print("annotations: ", annotations)
+            try:
+                with open("../src/annotations_data.txt", "w") as f:
+                    f.write(str(annotations))
+                    f.flush()
+                subprocess.run(['python', script_path], check=True)
+            except Exception as e:
+                print(f"Exception occurred: {e}")
+                print(traceback.format_exc())
             break
 
         number, mode = select_mode(key, mode)
