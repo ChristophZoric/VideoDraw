@@ -1,11 +1,11 @@
-#VIDEODRAW
+# VIDEODRAW
 
-##Dependencies
+## Dependencies
 - python3
 - pip
 - install requirements.txt via pip
 
-##Interface
+## Interface
 Drawing Interface for User with 4 possible hand gestures:
 1. Neutral 
 PLACEHOLDER FOR PICTURE
