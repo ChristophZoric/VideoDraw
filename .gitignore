@@ -1,7 +1,8 @@
 venv
-src/_pycache_
-src/save_model
+classification/_pycache_
+classification/saved_model
 data
+classification/annotations_data.txt
 
 
 # interface .gitignore
