@@ -5,6 +5,9 @@
 - pip
 - install requirements.txt via pip
 
+## How to start
+To run app, python3 interface/app.py
+
 ## Interface
 Drawing Interface for User with 4 possible hand gestures:
 1. Neutral 
