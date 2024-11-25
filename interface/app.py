@@ -124,10 +124,10 @@ def main():
             break
 
         if key == 13:
-            script_path = '../src/convert_np.py'
+            script_path = '../classification/convert_np.py'
             print("annotations: ", annotations)
             try:
-                with open("../src/annotations_data.txt", "w") as f:
+                with open("../classsification/annotations_data.txt", "w") as f:
                     f.write(str(annotations))
                     f.flush()
                 subprocess.run(['python', script_path], check=True)
