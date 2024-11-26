@@ -130,7 +130,7 @@ def main():
                 print("Starting subprocess")
                 process = classify(annotations)
         if process is None:
-            print("No subprocess")
+            pass
         elif process.poll() is None:
             pass
         else:
@@ -256,13 +256,13 @@ def main():
 
 
 def classify(annotations):
-    script_path = 'classification/convert_np.py'
+    script_path = 'classification.main'
     print("annotations: ", annotations)
     with open("classification/annotations_data.txt", "w") as f:
         f.write(str(annotations))
         f.flush()
     process = subprocess.Popen(
-        ['python', script_path],
+        ['python', '-m', script_path],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
