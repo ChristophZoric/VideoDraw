@@ -3,7 +3,7 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Flatten, Dropou
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from preprocess import load_and_preprocess_data
 
-def build_model(input_shape=(28, 28, 1), num_classes=3):
+def build_model(input_shape=(36, 36, 1), num_classes=3):  # Anpassung für höhere Auflösung
     model = Sequential([
         Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
         MaxPooling2D(pool_size=(2, 2)),
@@ -13,7 +13,7 @@ def build_model(input_shape=(28, 28, 1), num_classes=3):
         MaxPooling2D(pool_size=(2, 2)),
         Flatten(),
         Dense(128, activation='relu'),
-        Dropout(0.5), 
+        Dropout(0.5),
         Dense(num_classes, activation='softmax')
     ])
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
@@ -23,7 +23,6 @@ if __name__ == "__main__":
     data_dir = 'data'  # Der Ordner mit den .npy-Dateien
     (train_data, train_labels), (val_data, val_labels) = load_and_preprocess_data(data_dir)
 
-    
     datagen = ImageDataGenerator(width_shift_range=0.1, height_shift_range=0.1)
     datagen.fit(train_data)
 
