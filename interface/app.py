@@ -18,6 +18,7 @@ from model import KeyPointClassifier
 from model import PointHistoryClassifier
 
 import subprocess
+import sys
 
 
 def get_args():
@@ -267,7 +268,7 @@ def classify(annotations):
         f.write(str(annotations))
         f.flush()
     process = subprocess.Popen(
-        ['python', '-m', script_path],
+        [sys.executable, '-m', script_path],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
