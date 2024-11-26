@@ -57,6 +57,8 @@ def main():
 
     buffer_counter = 10
 
+    predicted_class = ""
+
     cap_device = args.device
     cap_width = args.width
     cap_height = args.height
@@ -137,6 +139,8 @@ def main():
             stdout, stderr = process.communicate()
             print("Subprocess output:", stdout)
             print("Subprocess error:", stderr)
+            print(stdout)
+            predicted_class = stdout
             process = None
 
         number, mode = select_mode(key, mode)
@@ -248,7 +252,8 @@ def main():
 
         # debug_image = draw_point_history(debug_image, point_history)
         debug_image = draw_annotation_history(debug_image, annotations)
-        debug_image = draw_info(debug_image, fps, mode, number)
+        debug_image = draw_info(
+            debug_image, fps, mode, number, predicted_class)
 
         cv.imshow('Hand Gesture Recognition', debug_image)
     cap.release()
@@ -420,9 +425,9 @@ def draw_info_text(image, brect, handedness, hand_sign_text,
                cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv.LINE_AA)
 
     if finger_gesture_text != "":
-        cv.putText(image, "Finger Gesture:" + finger_gesture_text, (10, 60),
+        cv.putText(image, "Finger Gesture:" + finger_gesture_text, (10, 100),
                    cv.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 4, cv.LINE_AA)
-        cv.putText(image, "Finger Gesture:" + finger_gesture_text, (10, 60),
+        cv.putText(image, "Finger Gesture:" + finger_gesture_text, (10, 100),
                    cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
                    cv.LINE_AA)
 
@@ -438,12 +443,15 @@ def draw_point_history(image, point_history):
     return image
 
 
-def draw_info(image, fps, mode, number):
+def draw_info(image, fps, mode, number, predicted_class):
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (255, 255, 255), 2, cv.LINE_AA)
-
+    cv.putText(image, "PREDICTED_CLASS:" + str(predicted_class), (10, 65), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (0, 0, 0), 4, cv.LINE_AA)
+    cv.putText(image, "PREDICTED_CLASS:" + str(predicted_class), (10, 65), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (255, 255, 255), 2, cv.LINE_AA)
     mode_string = ['Logging Key Point', 'Logging Point History']
     if 1 <= mode <= 2:
         cv.putText(image, "MODE:" + mode_string[mode - 1], (10, 90),
