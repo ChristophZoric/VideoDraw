@@ -140,7 +140,7 @@ def main():
             print("Subprocess output:", stdout)
             print("Subprocess error:", stderr)
             print(stdout)
-            predicted_class = stdout
+            predicted_class = " " + stdout.split('Predicted class: ')[1]
             process = None
 
         number, mode = select_mode(key, mode)
