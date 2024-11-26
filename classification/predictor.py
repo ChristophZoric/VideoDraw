@@ -16,6 +16,11 @@ class Predictor:
             (1, 36, 36, 1))  # Anpassung an 64x64 Pixel
 
         # Vorhersage
+        
         predictions = self.model.predict(coordinates)
         predicted_class = np.argmax(predictions[0])
+                # Überprüfen, ob die Vorhersage gültig ist
+        if predictions[0][predicted_class] < 0.5:  # Schwellenwert für unsichere Vorhersagen
+            return "Other"
+
         return self.class_names[predicted_class]
