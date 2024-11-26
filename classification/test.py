@@ -8,7 +8,7 @@ class Predictor:
 
         # Koordinatenbild laden und in das Modell-Format umwandeln
         class_data = np.load(np_file_path)
-        coordinates = class_data.reshape((1, 28, 28, 1))  # Passendes Format fÃ¼r das Modell
+        coordinates = class_data.reshape((1, 36, 36, 1))  # Anpassung an 64x64 Pixel
 
         # Vorhersage
         prediction = model.predict(coordinates)
@@ -17,6 +17,3 @@ class Predictor:
         # Klassennamen
         class_names = ['basketball', 'car', 'plane']
         print(f'Predicted class: {class_names[predicted_class]}')
-
-    # Testen des gespeicherten Arrays   
-    #load_and_test_coordinates('/home/mooyil/vscode-workspace/koordinaten_klassifikation/predict_data/test_image.npy')
