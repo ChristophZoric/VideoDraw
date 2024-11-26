@@ -139,7 +139,8 @@ def main():
         else:
             stdout, stderr = process.communicate()
             print("Subprocess output:", stdout)
-            print("Subprocess error:", stderr)
+            if stderr:
+                print("Subprocess error:", stderr)
             predicted_class = " " + stdout.split('Predicted class: ')[1]
             process = None
 
