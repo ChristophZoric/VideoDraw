@@ -113,6 +113,8 @@ def main():
     #  ########################################################################
     mode = 0
 
+    process = None
+
     while True:
         fps = cvFpsCalc.get()
 
@@ -124,17 +126,18 @@ def main():
             break
 
         if key == 13:
-            script_path = 'classification/convert_np.py'
-            print("annotations: ", annotations)
-            try:
-                with open("classification/annotations_data.txt", "w") as f:
-                    f.write(str(annotations))
-                    f.flush()
-                subprocess.run(['python', script_path], check=True)
-            except Exception as e:
-                print(f"Exception occurred: {e}")
-                print(traceback.format_exc())
-            break
+            if process is None or process.poll() is not None:
+                print("Starting subprocess")
+                process = classify(annotations)
+        if process is None:
+            print("No subprocess")
+        elif process.poll() is None:
+            pass
+        else:
+            stdout, stderr = process.communicate()
+            print("Subprocess output:", stdout)
+            print("Subprocess error:", stderr)
+            process = None
 
         number, mode = select_mode(key, mode)
 
@@ -250,6 +253,21 @@ def main():
         cv.imshow('Hand Gesture Recognition', debug_image)
     cap.release()
     cv.destroyAllWindows()
+
+
+def classify(annotations):
+    script_path = 'classification/convert_np.py'
+    print("annotations: ", annotations)
+    with open("classification/annotations_data.txt", "w") as f:
+        f.write(str(annotations))
+        f.flush()
+    process = subprocess.Popen(
+        ['python', script_path],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+    return process
 
 
 def draw_annotation_history(image, annotations):
