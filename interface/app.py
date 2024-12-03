@@ -426,9 +426,9 @@ def draw_info_text(image, brect, handedness, hand_sign_text,
         # cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv.LINE_AA)
 
     if finger_gesture_text != "":
-        cv.putText(image, hand_sign_text, (brect[0] + 30, brect[1] - 30),
+        cv.putText(image, info_text, (brect[0] + 30, brect[1] - 30),
                    cv.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 4, cv.LINE_AA)
-        cv.putText(image, hand_sign_text,  (brect[0] + 30, brect[1] - 30),
+        cv.putText(image, info_text,  (brect[0] + 30, brect[1] - 30),
                    cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
                    cv.LINE_AA)
 
