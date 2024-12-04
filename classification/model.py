@@ -3,7 +3,7 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Flatten, Dropou
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from preprocess import load_and_preprocess_data
 
-def build_model(input_shape=(36, 36, 1), num_classes=3):  # Anpassung für höhere Auflösung
+def build_model(input_shape=(36, 36, 1), num_classes=5):  # Anpassung für höhere Auflösung
     model = Sequential([
         Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
         MaxPooling2D(pool_size=(2, 2)),
@@ -29,5 +29,5 @@ if __name__ == "__main__":
     model = build_model()
     model.fit(datagen.flow(train_data, train_labels, batch_size=32),
               validation_data=(val_data, val_labels),
-              epochs=1)
+              epochs=5)
     model.save('classification/saved_model/coordinate_model.h5')

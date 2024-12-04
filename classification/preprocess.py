@@ -3,7 +3,7 @@ import numpy as np
 from tensorflow.keras.utils import to_categorical
 import cv2  # Für Resizing
 
-def load_and_preprocess_data(data_dir, num_classes=3, sample_fraction=0.1):
+def load_and_preprocess_data(data_dir, num_classes=5, sample_fraction=0.1):
     data = []
     labels = []
 
