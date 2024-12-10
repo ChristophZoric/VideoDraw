@@ -35,8 +35,11 @@ if __name__ == "__main__":
 
     # Beispiel-Zeichnung: Strichliste mit (x, y)-Koordinaten
     new_drawing_sequence = [
-        [[10, 20, 30], [30, 40, 50]],  # Erster Strich
-        [[15, 25, 35], [35, 45, 55]]   # Zweiter Strich
+        [[10, 30, 50, 70], [70, 50, 50, 70]],  # Erster Strich: Rechteck für den Körper
+        [[20, 30, 30, 20], [80, 80, 90, 90]],  # Zweiter Strich: Erster Reifen
+        [[50, 60, 60, 50], [80, 80, 90, 90]],  # Dritter Strich: Zweiter Reifen
+        [[15, 25, 25, 15], [60, 60, 70, 70]],  # Vierter Strich: Fenster links
+        [[45, 55, 55, 45], [60, 60, 70, 70]]   # Fünfter Strich: Fenster rechts
     ]
 
     # Flache Sequenz aus (x, y)-Paaren erstellen

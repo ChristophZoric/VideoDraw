@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     model = build_crnn_model(input_shape=(max_length, 2), num_classes=len(label_encoder.classes_))
 
-    model.fit(train_data, train_labels, validation_data=(val_data, val_labels), epochs=1, batch_size=32)
+    model.fit(train_data, train_labels, validation_data=(val_data, val_labels), epochs=5, batch_size=32)
 
     model.save('classification-crnn/crnn_quickdraw_model.h5')
     np.save('classification-crnn/label_classes.npy', label_encoder.classes_)
