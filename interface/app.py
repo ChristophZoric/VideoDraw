@@ -19,6 +19,8 @@ from model import PointHistoryClassifier
 
 import subprocess
 import sys
+import threading
+import time
 
 
 def get_args():
@@ -102,6 +104,17 @@ def main():
         point_history_classifier_labels = [
             row[0] for row in point_history_classifier_labels
         ]
+    # Classification Subprocess ########################################################
+
+#    script_path = 'classification.main'
+    # process = subprocess.Popen(
+        # [sys.executable, '-m', script_path],
+        # stdout=subprocess.PIPE,
+        # stderr=subprocess.PIPE,
+        # text=True
+    # )
+
+    annotations_lock = threading.Lock()
 
     # FPS Measurement ########################################################
     cvFpsCalc = CvFpsCalc(buffer_len=10)
@@ -116,7 +129,7 @@ def main():
     #  ########################################################################
     mode = 0
 
-    process = None
+    threadStarted = False
 
     while True:
         fps = cvFpsCalc.get()
@@ -126,23 +139,23 @@ def main():
         ## Process Key (ESC: end) #################################################
         key = cv.waitKey(5)
         if key == ord('q'):  # ESC
+            process = None
+            threading
             break
 
-        if key == 13:
-            if process is None or process.poll() is not None:
-                print("Starting subprocess")
-                process = classify(annotations)
-        if process is None:
-            pass
-        elif process.poll() is None:
-            pass
-        else:
-            stdout, stderr = process.communicate()
-            print("Subprocess output:", stdout)
-            if stderr:
-                print("Subprocess error:", stderr)
-            predicted_class = " " + stdout.split('Predicted class: ')[1]
-            process = None
+        if not threadStarted:
+            print("Thread started")
+            classification_thread = threading.Thread(
+                target=classification_loop, args=(annotations,), daemon=True)
+            classification_thread.start()
+            threadStarted = True
+
+        # if process is not None:
+            # stdout, stderr = process.communicate()
+            # print("Subprocess output:", stdout)
+            # if stderr:
+            # print("Subprocess error:", stderr)
+            # predicted_class = " " + stdout.split('Predicted class: ')[1]
 
         number, mode = select_mode(key, mode)
 
@@ -185,45 +198,49 @@ def main():
                     annotationStart = False
 
                 elif hand_sign_id == 1:  # Draw gesture
-                    if buffer_counter >= 0 and buffer_counter <= 5:
-                        buffer_counter = -1
-                        if lastDel is True:
+                    with annotations_lock:
+                        if buffer_counter >= 0 and buffer_counter <= 5:
+                            buffer_counter = -1
+                            if lastDel is True:
+                                annotationNumber += 1
+                                annotations.append([])
+                                lastDel = False
+                            annotations[annotationNumber].append(
+                                tuple(landmark_list[8])
+                            )
+                            annotationStart = True
+                            continue
+                        else:
+                            buffer_counter = -1
+                        if annotationStart is False:
                             annotationNumber += 1
+                            if lastDel is True:
+                                annotationNumber += 1
+                                annotations.append([])
+                                lastDel = False
                             annotations.append([])
-                            lastDel = False
+                            annotationStart = True
                         annotations[annotationNumber].append(
                             tuple(landmark_list[8])
                         )
-                        annotationStart = True
-                        continue
-                    else:
-                        buffer_counter = -1
-                    if annotationStart is False:
-                        annotationNumber += 1
-                        if lastDel is True:
-                            annotationNumber += 1
-                            annotations.append([])
-                            lastDel = False
-                        annotations.append([])
-                        annotationStart = True
-                    annotations[annotationNumber].append(
-                        tuple(landmark_list[8])
-                    )
 
                 elif hand_sign_id == 2 and annotations and frame_counter % frame_skip == 0:
-                    annotations.pop()
-                    annotationNumber -= 1
-                    annotationStart = False
-                    lastDel = True
+                    with annotations_lock:
+                        annotations.pop()
+                        annotationNumber -= 1
+                        annotationStart = False
+                        lastDel = True
 
                 elif hand_sign_id == 3 and frame_counter % frame_skip == 0:
-                    annotations = [[]]
-                    annotationNumber = -1
-                    annotationStart = False
+                    with annotations_lock:
+                        annotations = [[]]
+                        annotationNumber = -1
+                        annotationStart = False
 
                 else:
-                    point_history.append([0, 0])
-                    annotationStart = False
+                    with annotations_lock:
+                        point_history.append([0, 0])
+                        annotationStart = False
 
                 # Finger gesture classification
                 finger_gesture_id = 0
@@ -261,12 +278,8 @@ def main():
     cv.destroyAllWindows()
 
 
-def classify(annotations):
+def run_classification():
     script_path = 'classification.main'
-    print("annotations: ", annotations)
-    with open("classification/annotations_data.txt", "w") as f:
-        f.write(str(annotations))
-        f.flush()
     process = subprocess.Popen(
         [sys.executable, '-m', script_path],
         stdout=subprocess.PIPE,
@@ -274,6 +287,43 @@ def classify(annotations):
         text=True
     )
     return process
+
+
+def classification_loop(annotations):
+    annotations_lock = threading.Lock()
+    while True:
+        # Safely access annotations
+        with annotations_lock:
+            current_annotations = copy.deepcopy(annotations)
+        try:
+            classify(current_annotations)
+            process = run_classification()
+
+            # Collect the output and errors
+            # Wait for process to complete and get output
+            stdout, stderr = process.communicate()
+
+            # Handle the output
+            if stdout:
+                print("Subprocess output:", stdout)
+                if "Predicted class:" in stdout:
+                    predicted_class = " " + \
+                        stdout.split('Predicted class: ')[1]
+                    print("Predicted class:", predicted_class)
+            if stderr:
+                print("Subprocess error:", stderr)
+
+        except Exception as e:
+            print("Error in classification subprocess:", e)
+
+        time.sleep(2)
+
+
+def classify(annotations):
+    print("annotations: ", annotations)
+    with open("classification/annotations_data.txt", "w") as f:
+        f.write(str(annotations))
+        f.flush()
 
 
 def draw_annotation_history(image, annotations):
