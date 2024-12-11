@@ -24,7 +24,6 @@ def build_model(input_shape=(36, 36, 1), num_classes=5):
     return model
 
 def rasterize_sequence(sequence, img_size=36):
-    # sequence ist eine Liste von (x,y)-Koordinaten
     if not sequence:
         return np.zeros((img_size, img_size), dtype=np.uint8)
     xs = [p[0] for p in sequence]

@@ -14,21 +14,19 @@ def load_quickdraw_data(file_paths, max_samples_per_class=5000):
 
     for file_path in file_paths:
         class_name = file_path.split('/')[-1].split('.')[0]
-        class_sequences_count = 0  # Zähler für jede Klasse zurücksetzen
+        class_sequences_count = 0 
 
         with open(file_path, 'r') as f:
             for line in f:
-                # Breche ab, wenn die gewünschte Anzahl an Samples pro Klasse erreicht ist
                 if class_sequences_count >= max_samples_per_class:
                     break
 
                 data = json.loads(line)
                 if data['recognized']:
                     sequence = data['drawing']
-                    # Flache Sequenz aus x, y-Koordinaten erstellen
                     flat_sequence = []
                     for stroke in sequence:
-                        flat_sequence.extend(list(zip(stroke[0], stroke[1])))  # x, y-Paare
+                        flat_sequence.extend(list(zip(stroke[0], stroke[1]))) 
 
                     sequences.append(flat_sequence)
                     labels.append(class_name)
@@ -37,10 +35,8 @@ def load_quickdraw_data(file_paths, max_samples_per_class=5000):
     return sequences, labels
 
 def preprocess_sequences(sequences, max_length=128):
-    # Normalisierung der Sequenzen (0-1)
     normalized_sequences = [np.array(seq) / 255.0 for seq in sequences]
 
-    # Padding auf max_length
     padded_sequences = pad_sequences(normalized_sequences, maxlen=max_length, dtype='float32', padding='post', truncating='post')
     return padded_sequences
 

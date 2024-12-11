@@ -8,7 +8,6 @@ def load_annotations_from_file(file_path):
     return annotations
 
 if __name__ == "__main__":
-    # Passe den Pfad an, wie beim CRNN
     file_path = 'classification/annotations_data.txt'
 
     annotations = load_annotations_from_file(file_path)
@@ -18,7 +17,6 @@ if __name__ == "__main__":
         label_path='classification-cnn/label_classes.npy'
     )
 
-    # CNN-Predictor erwartet auch eine flache Liste von (x,y)-Paaren.
     flat_sequence = []
     for stroke in annotations:
         flat_sequence.extend(stroke)

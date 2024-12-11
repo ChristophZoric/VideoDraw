@@ -11,12 +11,11 @@ class Predictor:
         self.label_encoder.classes_ = self.class_names
 
     def predict(self, drawing_sequence):
-        # drawing_sequence ist eine Liste von (x, y)-Paaren
         # Rasterize
         img = rasterize_sequence(drawing_sequence, img_size=36)
         img = img.astype('float32') / 255.0
-        img = np.expand_dims(img, axis=-1)  # (36,36) -> (36,36,1)
-        img = np.expand_dims(img, axis=0)   # (36,36,1) -> (1,36,36,1)
+        img = np.expand_dims(img, axis=-1) 
+        img = np.expand_dims(img, axis=0)  
 
         prediction = self.model.predict(img)
         predicted_class = np.argmax(prediction[0])
@@ -29,7 +28,6 @@ if __name__ == "__main__":
         label_path='classification-cnn/label_classes.npy'
     )
 
-    # Beispiel-Zeichnung (ähnlich wie bei CRNN, nur hier als (x,y)-Paare)
     new_drawing_sequence = [
         ([10, 30, 50, 70], [70, 50, 50, 70]),
         ([20, 30, 30, 20], [80, 80, 90, 90]),
@@ -38,7 +36,6 @@ if __name__ == "__main__":
         ([45, 55, 55, 45], [60, 60, 70, 70])
     ]
 
-    # In flache (x,y)-Paare umwandeln
     flat_sequence = []
     for stroke in new_drawing_sequence:
         xs, ys = stroke

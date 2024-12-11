@@ -16,7 +16,6 @@ if __name__ == "__main__":
         'data-ndjsons/plane.ndjson'
     ]
 
-    # Lade Daten, pro Klasse bis zu 10.000 Samples (anpassbar)
     sequences, labels = load_quickdraw_data(file_paths, max_samples_per_class=5000)
     print("Klassenverteilung nach dem Laden:", Counter(labels))
 
@@ -33,17 +32,13 @@ if __name__ == "__main__":
     train_data, val_data, train_labels, val_labels = train_test_split(
         processed_sequences, one_hot_labels, test_size=0.2, random_state=42)
 
-    # Modell erstellen mit angepassten Dropout-Werten
     model = build_crnn_model(input_shape=(max_length, 2), num_classes=len(label_encoder.classes_),
                              lstm_units=64, dropout_rate=0.3)
     
-    # Angepasster Optimizer mit geringerer Lernrate
     model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
 
-    # Modellübersicht anzeigen
     model.summary()
 
-    # Mehr Epochen für längeres Training
     model.fit(train_data, train_labels, validation_data=(val_data, val_labels), epochs=35, batch_size=32)
 
     model.save('classification-crnn/crnn_quickdraw_model.h5')
