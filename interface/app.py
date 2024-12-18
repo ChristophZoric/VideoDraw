@@ -23,6 +23,9 @@ import threading
 import time
 
 
+annotations_lock = threading.Lock()
+
+
 def get_args():
     parser = argparse.ArgumentParser()
 
@@ -114,8 +117,6 @@ def main():
         # text=True
     # )
 
-    annotations_lock = threading.Lock()
-
     # FPS Measurement ########################################################
     cvFpsCalc = CvFpsCalc(buffer_len=10)
 
@@ -130,6 +131,7 @@ def main():
     mode = 0
 
     threadStarted = False
+    global annotations_lock
 
     while True:
         fps = cvFpsCalc.get()
@@ -149,13 +151,12 @@ def main():
                 target=classification_loop, args=(annotations,), daemon=True)
             classification_thread.start()
             threadStarted = True
-
         # if process is not None:
-            # stdout, stderr = process.communicate()
-            # print("Subprocess output:", stdout)
-            # if stderr:
-            # print("Subprocess error:", stderr)
-            # predicted_class = " " + stdout.split('Predicted class: ')[1]
+        # stdout, stderr = process.communicate()
+        # print("Subprocess output:", stdout)
+        # if stderr:
+        # print("Subprocess error:", stderr)
+        # predicted_class = " " + stdout.split('Predicted class: ')[1]
 
         number, mode = select_mode(key, mode)
 
@@ -230,12 +231,15 @@ def main():
                         annotationNumber -= 1
                         annotationStart = False
                         lastDel = True
+                        print(annotations)
 
                 elif hand_sign_id == 3 and frame_counter % frame_skip == 0:
                     with annotations_lock:
-                        annotations = [[]]
+                        del annotations[:]
+                        annotations.append([])
                         annotationNumber = -1
                         annotationStart = False
+                        print(annotations)
 
                 else:
                     with annotations_lock:
@@ -290,12 +294,13 @@ def run_classification():
 
 
 def classification_loop(annotations):
-    annotations_lock = threading.Lock()
+    global annotations_lock
     while True:
         # Safely access annotations
         with annotations_lock:
-            current_annotations = copy.deepcopy(annotations)
+            current_annotations = annotations.copy()
         try:
+            print("current_annotations: ", current_annotations)
             classify(current_annotations)
             process = run_classification()
 
@@ -320,10 +325,12 @@ def classification_loop(annotations):
 
 
 def classify(annotations):
-    print("annotations: ", annotations)
-    with open("classification/annotations_data.txt", "w") as f:
-        f.write(str(annotations))
-        f.flush()
+    global annotations_lock
+    with annotations_lock:
+        print("annotations: ", annotations)
+        with open("classification/annotations_data.txt", "w") as f:
+            f.write(str(annotations))
+            f.flush()
 
 
 def draw_annotation_history(image, annotations):
