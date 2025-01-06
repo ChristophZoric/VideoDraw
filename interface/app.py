@@ -58,7 +58,8 @@ def main():
 
     buffer_counter = 10
 
-    predicted_class = ""
+    cnn_predicted_class = ""
+    crnn_predicted_class = ""
 
     cap_device = args.device
     cap_width = args.width
@@ -116,7 +117,8 @@ def main():
     #  ########################################################################
     mode = 0
 
-    process = None
+    cnn_process = None
+    crnn_process = None
 
     while True:
         fps = cvFpsCalc.get()
@@ -129,20 +131,41 @@ def main():
             break
 
         if key == 13:
-            if process is None or process.poll() is not None:
-                print("Starting subprocess")
-                process = classify(annotations)
-        if process is None:
+            if cnn_process is None or cnn_process.poll() is not None:
+                print("Starting CNN subprocess")
+                cnn_process = classify(
+                    annotations, 'classification-cnn.predictor')
+            if crnn_process is None or crnn_process.poll() is not None:
+                print("Starting CRNN subprocess")
+                crnn_process = classify(
+                    annotations, 'classification-crnn.predictor')
+        if cnn_process is None:
             pass
-        elif process.poll() is None:
+        elif cnn_process.poll() is None:
             pass
         else:
-            stdout, stderr = process.communicate()
-            print("Subprocess output:", stdout)
+            stdout, stderr = cnn_process.communicate()
+            print("CNN Subprocess output:", stdout)
             if stderr:
-                print("Subprocess error:", stderr)
-            predicted_class = " " + stdout.split('Predicted class: ')[1]
-            process = None
+                print("CNN Subprocess error:", stderr)
+            if stdout:
+                cnn_predicted_class = " " + \
+                    stdout.split('Vorhergesagte Klasse: ')[1]
+                cnn_process = None
+
+        if crnn_process is None:
+            pass
+        elif crnn_process.poll() is None:
+            pass
+        else:
+            stdout2, stderr2 = crnn_process.communicate()
+            print("CRNN Subprocess output:", stdout2)
+            if stderr2:
+                print("CNN Subprocess error:", stderr2)
+            if stdout2:
+                crnn_predicted_class = " " + \
+                    stdout2.split('Vorhergesagte Klasse: ')[1]
+                crnn_process = None
 
         number, mode = select_mode(key, mode)
 
@@ -254,15 +277,14 @@ def main():
         # debug_image = draw_point_history(debug_image, point_history)
         debug_image = draw_annotation_history(debug_image, annotations)
         debug_image = draw_info(
-            debug_image, fps, mode, number, predicted_class)
+            debug_image, fps, mode, number, cnn_predicted_class, crnn_predicted_class)
 
         cv.imshow('Hand Gesture Recognition', debug_image)
     cap.release()
     cv.destroyAllWindows()
 
 
-def classify(annotations):
-    script_path = 'classification.main'
+def classify(annotations, script_path):
     print("annotations: ", annotations)
     with open("classification/annotations_data.txt", "w") as f:
         f.write(str(annotations))
@@ -444,14 +466,18 @@ def draw_point_history(image, point_history):
     return image
 
 
-def draw_info(image, fps, mode, number, predicted_class):
+def draw_info(image, fps, mode, number, cnn_predicted_class, crnn_predicted_class):
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (255, 255, 255), 2, cv.LINE_AA)
-    cv.putText(image, "PREDICTED_CLASS:" + str(predicted_class), (10, 65), cv.FONT_HERSHEY_SIMPLEX,
+    cv.putText(image, "CNN_PREDICTED_CLASS:" + str(cnn_predicted_class), (10, 65), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
-    cv.putText(image, "PREDICTED_CLASS:" + str(predicted_class), (10, 65), cv.FONT_HERSHEY_SIMPLEX,
+    cv.putText(image, "CNN_PREDICTED_CLASS:" + str(cnn_predicted_class), (10, 65), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (255, 255, 255), 2, cv.LINE_AA)
+    cv.putText(image, "CRNN_PREDICTED_CLASS:" + str(crnn_predicted_class), (10, 100), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (0, 0, 0), 4, cv.LINE_AA)
+    cv.putText(image, "CRNN_PREDICTED_CLASS:" + str(crnn_predicted_class), (10, 100), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (255, 255, 255), 2, cv.LINE_AA)
     mode_string = ['Logging Key Point', 'Logging Point History']
     if 1 <= mode <= 2:

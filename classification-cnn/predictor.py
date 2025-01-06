@@ -1,7 +1,8 @@
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
-from model import rasterize_sequence
+from .model import rasterize_sequence
+
 
 class Predictor:
     def __init__(self, model_path='classification-cnn/cnn_quickdraw_model.h5', label_path='classification-cnn/label_classes.npy'):
@@ -14,12 +15,13 @@ class Predictor:
         # Rasterize
         img = rasterize_sequence(drawing_sequence, img_size=36)
         img = img.astype('float32') / 255.0
-        img = np.expand_dims(img, axis=-1) 
-        img = np.expand_dims(img, axis=0)  
+        img = np.expand_dims(img, axis=-1)
+        img = np.expand_dims(img, axis=0)
 
         prediction = self.model.predict(img)
         predicted_class = np.argmax(prediction[0])
         return self.label_encoder.inverse_transform([predicted_class])[0]
+
 
 # Testcode
 if __name__ == "__main__":
@@ -40,7 +42,7 @@ if __name__ == "__main__":
     for stroke in new_drawing_sequence:
         xs, ys = stroke
         for x, y in zip(xs, ys):
-            flat_sequence.append((x,y))
+            flat_sequence.append((x, y))
 
     predicted_class = predictor.predict(flat_sequence)
     print(f"Vorhergesagte Klasse: {predicted_class}")
