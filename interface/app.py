@@ -134,11 +134,11 @@ def main():
             if cnn_process is None or cnn_process.poll() is not None:
                 print("Starting CNN subprocess")
                 cnn_process = classify(
-                    annotations, 'classification-cnn.predictor')
+                    annotations, 'classification-cnn.predictor_interface')
             if crnn_process is None or crnn_process.poll() is not None:
                 print("Starting CRNN subprocess")
                 crnn_process = classify(
-                    annotations, 'classification-crnn.predictor')
+                    annotations, 'classification-crnn.predictor_interface')
         if cnn_process is None:
             pass
         elif cnn_process.poll() is None:
@@ -150,7 +150,7 @@ def main():
                 print("CNN Subprocess error:", stderr)
             if stdout:
                 cnn_predicted_class = " " + \
-                    stdout.split('Vorhergesagte Klasse: ')[1]
+                    stdout.split('CNN Vorhersage: ')[1]
                 cnn_process = None
 
         if crnn_process is None:
@@ -164,7 +164,7 @@ def main():
                 print("CNN Subprocess error:", stderr2)
             if stdout2:
                 crnn_predicted_class = " " + \
-                    stdout2.split('Vorhergesagte Klasse: ')[1]
+                    stdout2.split('CRNN Vorhersage: ')[1]
                 crnn_process = None
 
         number, mode = select_mode(key, mode)

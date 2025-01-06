@@ -1,11 +1,13 @@
 import ast
-from predictor import Predictor as CNNPredictor
+from .predictor import Predictor as CNNPredictor
+
 
 def load_annotations_from_file(file_path):
     with open(file_path, 'r') as f:
         content = f.read().strip()
     annotations = ast.literal_eval(content)
     return annotations
+
 
 if __name__ == "__main__":
     file_path = 'classification/annotations_data.txt'
