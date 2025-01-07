@@ -60,6 +60,8 @@ def producer(annotations):
 
 def classification_worker():
     while True:
+        global cnn_prediction
+        global crnn_prediction
         if not classification_queue.empty():
             annotations = classification_queue.get()
             print("Classifying annotations:", annotations)
@@ -72,6 +74,8 @@ def classification_worker():
             stdout, stderr = cnn_process.communicate()
             if stdout:
                 print("CNN Output:", stdout)
+                cnn_prediction = " " + \
+                    stdout.split('CNN Vorhersage: ')[1]
             if stderr:
                 print("CNN Error:", stderr)
 
@@ -79,6 +83,8 @@ def classification_worker():
             stdout2, stderr2 = crnn_process.communicate()
             if stdout2:
                 print("CRNN Output:", stdout2)
+                crnn_prediction = " " + \
+                    stdout2.split('CRNN Vorhersage: ')[1]
             if stderr2:
                 print("CRNN Error:", stderr2)
         else:
@@ -91,7 +97,8 @@ annotations_lock = threading.Lock()
 worker_thread = threading.Thread(target=classification_worker, daemon=True)
 producer_thread = threading.Thread(
     target=producer, args=(annotations,), daemon=True)
-
+cnn_prediction = "Other?"
+crnn_prediction = "Other?"
 worker_thread.start()
 producer_thread.start()
 
@@ -102,6 +109,8 @@ def main():
 
     # Vars ############################################################################
     global annotations
+    global cnn_prediction
+    global crnn_prediction
     annotationNumber = -1
     annotationStart = False
     lastDel = False
@@ -110,9 +119,6 @@ def main():
     frame_skip = 10
 
     buffer_counter = 10
-
-    cnn_predicted_class = ""
-    crnn_predicted_class = ""
 
     cap_device = args.device
     cap_width = args.width
@@ -183,42 +189,42 @@ def main():
         if key == ord('q'):  # ESC
             break
 
-        if key == 13:
-            if cnn_process is None or cnn_process.poll() is not None:
-                print("Starting CNN subprocess")
-                cnn_process = classify(
-                    annotations, 'classification-cnn.predictor_interface')
-            if crnn_process is None or crnn_process.poll() is not None:
-                print("Starting CRNN subprocess")
-                crnn_process = classify(
-                    annotations, 'classification-crnn.predictor_interface')
-        if cnn_process is None:
-            pass
-        elif cnn_process.poll() is None:
-            pass
-        else:
-            stdout, stderr = cnn_process.communicate()
-            print("CNN Subprocess output:", stdout)
-            if stderr:
-                print("CNN Subprocess error:", stderr)
-            if stdout:
-                cnn_predicted_class = " " + \
-                    stdout.split('CNN Vorhersage: ')[1]
-                cnn_process = None
+#        if key == 13:
+            # if cnn_process is None or cnn_process.poll() is not None:
+            # print("Starting CNN subprocess")
+            # cnn_process = classify(
+            # annotations, 'classification-cnn.predictor_interface')
+            # if crnn_process is None or crnn_process.poll() is not None:
+            # print("Starting CRNN subprocess")
+            # crnn_process = classify(
+            # annotations, 'classification-crnn.predictor_interface')
+        # if cnn_process is None:
+            # pass
+        # elif cnn_process.poll() is None:
+            # pass
+        # else:
+            # stdout, stderr = cnn_process.communicate()
+            # print("CNN Subprocess output:", stdout)
+            # if stderr:
+            # print("CNN Subprocess error:", stderr)
+            # if stdout:
+            # cnn_predicted_class = " " + \
+            # stdout.split('CNN Vorhersage: ')[1]
+            # cnn_process = None
 
-        if crnn_process is None:
-            pass
-        elif crnn_process.poll() is None:
-            pass
-        else:
-            stdout2, stderr2 = crnn_process.communicate()
-            print("CRNN Subprocess output:", stdout2)
-            if stderr2:
-                print("CNN Subprocess error:", stderr2)
-            if stdout2:
-                crnn_predicted_class = " " + \
-                    stdout2.split('CRNN Vorhersage: ')[1]
-                crnn_process = None
+#        if crnn_process is None:
+            # pass
+        # elif crnn_process.poll() is None:
+            # pass
+        # else:
+            # stdout2, stderr2 = crnn_process.communicate()
+            # print("CRNN Subprocess output:", stdout2)
+            # if stderr2:
+            # print("CNN Subprocess error:", stderr2)
+            # if stdout2:
+            # crnn_predicted_class = " " + \
+            # stdout2.split('CRNN Vorhersage: ')[1]
+            # crnn_process = None
 
         number, mode = select_mode(key, mode)
 
@@ -331,7 +337,7 @@ def main():
         # debug_image = draw_point_history(debug_image, point_history)
         debug_image = draw_annotation_history(debug_image, annotations)
         debug_image = draw_info(
-            debug_image, fps, mode, number, cnn_predicted_class, crnn_predicted_class)
+            debug_image, fps, mode, number, cnn_prediction, crnn_prediction)
 
         cv.imshow('Hand Gesture Recognition', debug_image)
     cap.release()
