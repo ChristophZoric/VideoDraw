@@ -19,6 +19,9 @@ from model import PointHistoryClassifier
 
 import subprocess
 import sys
+import threading
+import queue
+import time
 
 
 def get_args():
@@ -43,12 +46,58 @@ def get_args():
     return args
 
 
+classification_queue = queue.Queue()
+
+
+def producer(annotations):
+    while True:
+        time.sleep(2)  # Wait for 2 seconds
+        if annotations:  # Ensure annotations are not empty
+            annotations_copy = copy.deepcopy(annotations)
+            classification_queue.put(annotations_copy)
+            print("Task added to queue:", annotations_copy)
+
+
+def classification_worker():
+    while True:
+        if not classification_queue.empty():
+            annotations = classification_queue.get()
+            print("Classifying annotations:", annotations)
+            cnn_process = classify(
+                annotations, 'classification-cnn.predictor_interface')
+            crnn_process = classify(
+                annotations, 'classification-crnn.predictor_interface')
+
+            # Handle CNN Process
+            stdout, stderr = cnn_process.communicate()
+            if stdout:
+                print("CNN Output:", stdout)
+            if stderr:
+                print("CNN Error:", stderr)
+
+            # Handle CRNN Process
+            stdout2, stderr2 = crnn_process.communicate()
+            if stdout2:
+                print("CRNN Output:", stdout2)
+            if stderr2:
+                print("CRNN Error:", stderr2)
+
+
+annotations = [[]]  # Shared resource
+worker_thread = threading.Thread(target=classification_worker, daemon=True)
+producer_thread = threading.Thread(
+    target=producer, args=(annotations,), daemon=True)
+
+worker_thread.start()
+producer_thread.start()
+
+
 def main():
     # Argument parsing #################################################################
     args = get_args()
 
     # Vars ############################################################################
-    annotations = [[]]
+    global annotations
     annotationNumber = -1
     annotationStart = False
     lastDel = False
