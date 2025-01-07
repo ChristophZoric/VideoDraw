@@ -46,16 +46,16 @@ def get_args():
     return args
 
 
-classification_queue = queue.Queue()
-
-
 def producer(annotations):
     while True:
-        time.sleep(2)  # Wait for 2 seconds
-        if annotations:  # Ensure annotations are not empty
-            annotations_copy = copy.deepcopy(annotations)
-            classification_queue.put(annotations_copy)
-            print("Task added to queue:", annotations_copy)
+        time.sleep(5)
+        with annotations_lock:
+            if any(len(sublist) > 0 for sublist in annotations):
+                annotations_copy = copy.deepcopy(annotations)
+                classification_queue.put(annotations_copy)
+                print("Task added to queue:", annotations_copy)
+            else:
+                print("Annotations are empty, waiting for new data...")
 
 
 def classification_worker():
@@ -81,9 +81,13 @@ def classification_worker():
                 print("CRNN Output:", stdout2)
             if stderr2:
                 print("CRNN Error:", stderr2)
+        else:
+            time.sleep(5)
 
 
-annotations = [[]]  # Shared resource
+classification_queue = queue.Queue()
+annotations = [[]]
+annotations_lock = threading.Lock()
 worker_thread = threading.Thread(target=classification_worker, daemon=True)
 producer_thread = threading.Thread(
     target=producer, args=(annotations,), daemon=True)
@@ -289,7 +293,8 @@ def main():
                     lastDel = True
 
                 elif hand_sign_id == 3 and frame_counter % frame_skip == 0:
-                    annotations = [[]]
+                    annotations.clear()
+                    annotations.append([])
                     annotationNumber = -1
                     annotationStart = False
 
@@ -334,7 +339,6 @@ def main():
 
 
 def classify(annotations, script_path):
-    print("annotations: ", annotations)
     with open("classification/annotations_data.txt", "w") as f:
         f.write(str(annotations))
         f.flush()
