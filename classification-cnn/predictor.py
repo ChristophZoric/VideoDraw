@@ -1,7 +1,8 @@
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
-from .model import rasterize_sequence
+import ast
+from model import rasterize_sequence
 
 
 class Predictor:
@@ -23,26 +24,26 @@ class Predictor:
         return self.label_encoder.inverse_transform([predicted_class])[0]
 
 
-# Testcode
+def load_annotations_from_file(file_path):
+    with open(file_path, 'r') as f:
+        content = f.read().strip()
+    annotations = ast.literal_eval(content)
+    return annotations
+
+
 if __name__ == "__main__":
+    file_path = 'classification/annotations_data.txt'
+
+    annotations = load_annotations_from_file(file_path)
+
     predictor = Predictor(
         model_path='classification-cnn/cnn_quickdraw_model.h5',
         label_path='classification-cnn/label_classes.npy'
     )
 
-    new_drawing_sequence = [
-        ([10, 30, 50, 70], [70, 50, 50, 70]),
-        ([20, 30, 30, 20], [80, 80, 90, 90]),
-        ([50, 60, 60, 50], [80, 80, 90, 90]),
-        ([15, 25, 25, 15], [60, 60, 70, 70]),
-        ([45, 55, 55, 45], [60, 60, 70, 70])
-    ]
-
     flat_sequence = []
-    for stroke in new_drawing_sequence:
-        xs, ys = stroke
-        for x, y in zip(xs, ys):
-            flat_sequence.append((x, y))
+    for stroke in annotations:
+        flat_sequence.extend(stroke)
 
-    predicted_class = predictor.predict(flat_sequence)
-    print(f"Vorhergesagte Klasse: {predicted_class}")
+    result = predictor.predict(flat_sequence)
+    print("CNN Vorhersage:", result)
