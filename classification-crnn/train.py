@@ -6,6 +6,7 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.optimizers import Adam
 from collections import Counter
 import numpy as np
+import os
 
 if __name__ == "__main__":
     file_paths = [
@@ -30,14 +31,18 @@ if __name__ == "__main__":
     print("Klassen:", label_encoder.classes_)
 
     train_data, val_data, train_labels, val_labels = train_test_split(
-        processed_sequences,
-        one_hot_labels,
-        test_size=0.2,
+        processed_sequences, 
+        one_hot_labels, 
+        test_size=0.2, 
         random_state=42
     )
 
-    model = build_crnn_model(input_shape=(max_length, 2), num_classes=len(label_encoder.classes_),
-                             lstm_units=64, dropout_rate=0.3)
+    model = build_crnn_model(
+        input_shape=(max_length, 2),
+        num_classes=len(label_encoder.classes_),
+        lstm_units=64,
+        dropout_rate=0.3
+    )
     
     model.compile(
         optimizer=Adam(learning_rate=0.001),
@@ -45,15 +50,22 @@ if __name__ == "__main__":
         metrics=['accuracy']
     )
 
-    model.summary()
-
-    model.fit(
+    history_crnn = model.fit(
         train_data, train_labels,
         validation_data=(val_data, val_labels),
-        epochs=1,
+        epochs=5,
         batch_size=32
     )
 
-    model.save('classification-crnn/crnn_quickdraw_model.h5')
-    np.save('classification-crnn/label_classes.npy', label_encoder.classes_)
-    print("Modell und Klassen erfolgreich gespeichert!")
+    save_dir = 'classification-crnn'
+    os.makedirs(save_dir, exist_ok=True)
+    model_path = os.path.join(save_dir, 'crnn_quickdraw_model.h5')
+    model.save(model_path)
+    np.save(os.path.join(save_dir, 'label_classes.npy'), label_encoder.classes_)
+
+    np.save(os.path.join(save_dir, 'history_crnn.npy'), history_crnn.history)
+
+    np.save(os.path.join(save_dir, 'val_data.npy'), val_data)
+    np.save(os.path.join(save_dir, 'val_labels.npy'), val_labels)
+
+    print("CRNN Modell, Klassen, Trainings-Historie und Validierungsdaten erfolgreich gespeichert!")

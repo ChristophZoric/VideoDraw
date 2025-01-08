@@ -9,7 +9,7 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.optimizers import Adam
 from sklearn.model_selection import train_test_split
 
-def build_model(input_shape=(36, 36, 1), num_classes=5):
+def build_model(input_shape=(36, 36, 1), num_classes=5, dropout_rate=0.3):
     model = Sequential([
         Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
         MaxPooling2D(pool_size=(2, 2)),
@@ -19,7 +19,7 @@ def build_model(input_shape=(36, 36, 1), num_classes=5):
         MaxPooling2D(pool_size=(2, 2)),
         Flatten(),
         Dense(128, activation='relu'),
-        Dropout(0.5),
+        Dropout(dropout_rate),
         Dense(num_classes, activation='softmax')
     ])
     model.compile(
