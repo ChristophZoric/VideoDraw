@@ -49,15 +49,23 @@ def get_args():
 def producer(annotations):
     global cnn_prediction
     global crnn_prediction
+    last_annotations = None
     while True:
-        time.sleep(5)
+        time.sleep(2)
         with annotations_lock:
             if any(len(sublist) > 0 for sublist in annotations):
                 annotations_copy = copy.deepcopy(annotations)
-                classification_queue.put(annotations_copy)
-                print("Task added to queue:", annotations_copy)
+                if last_annotations is None or annotations_copy != last_annotations:
+                    classification_queue.put(annotations_copy)
+                    print("Task added to queue:", annotations_copy)
+                    last_annotations = annotations_copy
+                else:
+                    print("Annotations are the same, waiting for new data...")
             else:
                 print("Annotations are empty, waiting for new data...")
+                while not classification_queue.empty():
+                    classification_queue.get()
+                last_annotations = None
                 cnn_prediction = "Other?"
                 crnn_prediction = "Other?"
 
