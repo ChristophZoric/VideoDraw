@@ -47,6 +47,8 @@ def get_args():
 
 
 def producer(annotations):
+    global cnn_prediction
+    global crnn_prediction
     while True:
         time.sleep(5)
         with annotations_lock:
@@ -56,6 +58,8 @@ def producer(annotations):
                 print("Task added to queue:", annotations_copy)
             else:
                 print("Annotations are empty, waiting for new data...")
+                cnn_prediction = "Other?"
+                crnn_prediction = "Other?"
 
 
 def classification_worker():
@@ -88,7 +92,7 @@ def classification_worker():
             if stderr2:
                 print("CRNN Error:", stderr2)
         else:
-            time.sleep(5)
+            time.sleep(0.1)
 
 
 classification_queue = queue.Queue()
@@ -339,6 +343,9 @@ def main():
         debug_image = draw_info(
             debug_image, fps, mode, number, cnn_prediction, crnn_prediction)
 
+        if all(len(sublist) == 0 for sublist in annotations):
+            debug_image = draw_instruction(debug_image)
+
         cv.imshow('Hand Gesture Recognition', debug_image)
     cap.release()
     cv.destroyAllWindows()
@@ -522,6 +529,14 @@ def draw_point_history(image, point_history):
             cv.circle(image, (point[0], point[1]), 1 + int(index / 2),
                       (0, 251, 0), -1)
 
+    return image
+
+
+def draw_instruction(image):
+    cv.putText(image, "No Drawing detected", (230, 250), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (0, 0, 0), 4, cv.LINE_AA)
+    cv.putText(image, "No Drawing detected", (230, 250), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (255, 255, 255), 2, cv.LINE_AA)
     return image
 
 
