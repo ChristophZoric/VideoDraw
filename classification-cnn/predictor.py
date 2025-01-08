@@ -2,7 +2,7 @@ from tensorflow.keras.models import load_model
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import ast
-from .model import rasterize_sequence
+from model import rasterize_sequence
 
 
 class Predictor:

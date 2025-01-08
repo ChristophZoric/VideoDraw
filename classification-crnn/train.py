@@ -30,16 +30,29 @@ if __name__ == "__main__":
     print("Klassen:", label_encoder.classes_)
 
     train_data, val_data, train_labels, val_labels = train_test_split(
-        processed_sequences, one_hot_labels, test_size=0.2, random_state=42)
+        processed_sequences,
+        one_hot_labels,
+        test_size=0.2,
+        random_state=42
+    )
 
     model = build_crnn_model(input_shape=(max_length, 2), num_classes=len(label_encoder.classes_),
                              lstm_units=64, dropout_rate=0.3)
     
-    model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(
+        optimizer=Adam(learning_rate=0.001),
+        loss='categorical_crossentropy',
+        metrics=['accuracy']
+    )
 
     model.summary()
 
-    model.fit(train_data, train_labels, validation_data=(val_data, val_labels), epochs=35, batch_size=32)
+    model.fit(
+        train_data, train_labels,
+        validation_data=(val_data, val_labels),
+        epochs=1,
+        batch_size=32
+    )
 
     model.save('classification-crnn/crnn_quickdraw_model.h5')
     np.save('classification-crnn/label_classes.npy', label_encoder.classes_)

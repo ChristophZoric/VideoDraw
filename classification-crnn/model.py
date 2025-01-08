@@ -37,7 +37,13 @@ def load_quickdraw_data(file_paths, max_samples_per_class=5000):
 def preprocess_sequences(sequences, max_length=128):
     normalized_sequences = [np.array(seq) / 255.0 for seq in sequences]
 
-    padded_sequences = pad_sequences(normalized_sequences, maxlen=max_length, dtype='float32', padding='post', truncating='post')
+    padded_sequences = pad_sequences(
+        normalized_sequences,
+        maxlen=max_length,
+        dtype='float32',
+        padding='post',
+        truncating='post'
+    )
     return padded_sequences
 
 
