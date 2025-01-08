@@ -78,9 +78,9 @@ def classification_worker():
             annotations = classification_queue.get()
             print("Classifying annotations:", annotations)
             cnn_process = classify(
-                annotations, 'classification-cnn.predictor_interface')
+                annotations, 'classification-cnn.predictor')
             crnn_process = classify(
-                annotations, 'classification-crnn.predictor_interface')
+                annotations, 'classification-crnn.predictor')
 
             # Handle CNN Process
             stdout, stderr = cnn_process.communicate()
