@@ -56,9 +56,10 @@ def producer(annotations):
             if any(len(sublist) > 0 for sublist in annotations):
                 annotations_copy = copy.deepcopy(annotations)
                 if last_annotations is None or annotations_copy != last_annotations:
-                    classification_queue.put(annotations_copy)
-                    print("Task added to queue:", annotations_copy)
-                    last_annotations = annotations_copy
+                    if classification_queue.empty():
+                        classification_queue.put(annotations_copy)
+                        print("Task added to queue:", annotations_copy)
+                        last_annotations = annotations_copy
                 else:
                     print("Annotations are the same, waiting for new data...")
             else:
