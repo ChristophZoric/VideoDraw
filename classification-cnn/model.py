@@ -8,6 +8,7 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Flatten, Dropou
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.optimizers import Adam
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 def build_model(input_shape=(36, 36, 1), num_classes=5, dropout_rate=0.3):
     model = Sequential([
@@ -66,7 +67,8 @@ def load_ndjson_data(file_paths, max_samples_per_class=5000):
                 data = json.loads(line)
                 if data['recognized']:
                     flat_sequence = []
-                    for stroke in data['drawing']:
+                    half_strokes = data['drawing'][:len(data['drawing']) // 2]  
+                    for stroke in half_strokes:
                         xs = stroke[0]
                         ys = stroke[1]
                         for x, y in zip(xs, ys):
@@ -74,6 +76,18 @@ def load_ndjson_data(file_paths, max_samples_per_class=5000):
                     sequences.append((flat_sequence, class_name))
                     class_count += 1
     return sequences
+
+def show_samples(data, labels, class_names, num_samples=5):
+    plt.figure(figsize=(10, 5))
+    for i in range(num_samples):
+        img = data[i].squeeze()  # Entferne die Kanal-Dimension (36, 36, 1) -> (36, 36)
+        label = class_names[np.argmax(labels[i])]
+        plt.subplot(1, num_samples, i + 1)
+        plt.imshow(img, cmap='gray')
+        plt.title(label)
+        plt.axis('off')
+    plt.show()
+
 
 def load_and_preprocess_data_from_ndjson(file_paths, num_classes=5, max_samples_per_class=5000, test_size=0.2, random_state=42):
     sequences = load_ndjson_data(file_paths, max_samples_per_class)
@@ -96,6 +110,7 @@ def load_and_preprocess_data_from_ndjson(file_paths, num_classes=5, max_samples_
     train_data, val_data, train_labels, val_labels = train_test_split(
         data, labels, test_size=test_size, random_state=random_state
     )
+    show_samples(train_data, train_labels, class_names)
 
     # Durchmischen
     indices = np.arange(len(data))

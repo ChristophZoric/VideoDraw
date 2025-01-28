@@ -7,6 +7,37 @@ from tensorflow.keras.optimizers import Adam
 from collections import Counter
 import numpy as np
 import os
+import matplotlib.pyplot as plt
+
+# Funktion zur Visualisierung der Sequenzen
+def visualize_all_classes(sequences, labels, class_names):
+    # Gruppiere Sequenzen nach Klassen
+    class_to_sequences = {class_name: [] for class_name in class_names}
+    for seq, label in zip(sequences, labels):
+        class_name = class_names[np.argmax(label)]
+        if seq:  # Nur nicht-leere Sequenzen hinzufügen
+            class_to_sequences[class_name].append(seq)
+
+    plt.figure(figsize=(15, 10))
+    for i, (class_name, seq_list) in enumerate(class_to_sequences.items()):
+        if seq_list:  # Falls es Sequenzen für diese Klasse gibt
+            sequence = seq_list[0]  # Nimm die erste Sequenz dieser Klasse
+            
+            # **Sicherstellen, dass die Sequenz nicht leer ist**
+            if len(sequence) > 0:
+                # Extrahiere die Punkte
+                xs, ys = zip(*[(p[0], p[1]) for p in sequence if p[0] != 0 or p[1] != 0])
+
+                # Plot
+                plt.subplot(1, len(class_names), i + 1)
+                plt.plot(xs, ys, marker='o', markersize=2, linewidth=1)
+                plt.gca().invert_yaxis()  # Invertiere die Y-Achse
+                plt.title(class_name)
+                plt.axis('off')
+
+    plt.show()
+
+
 
 if __name__ == "__main__":
     file_paths = [
@@ -29,6 +60,8 @@ if __name__ == "__main__":
 
     print("Anzahl Klassen:", len(label_encoder.classes_))
     print("Klassen:", label_encoder.classes_)
+
+    visualize_all_classes(sequences, one_hot_labels, label_encoder.classes_)
 
     train_data, val_data, train_labels, val_labels = train_test_split(
         processed_sequences, 
