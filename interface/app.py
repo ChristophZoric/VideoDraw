@@ -75,29 +75,38 @@ def classification_worker():
     while True:
         global cnn_prediction
         global crnn_prediction
+        global cnn_time
+        global crnn_time
         if not classification_queue.empty():
             annotations = classification_queue.get()
             print("Classifying annotations:", annotations)
-            cnn_process = classify(
-                annotations, 'classification-cnn.predictor')
-            crnn_process = classify(
-                annotations, 'classification-crnn.predictor')
 
-            # Handle CNN Process
+            # Measure CNN Process Time
+            start_cnn = time.time()
+            cnn_process = classify(annotations, 'classification-cnn.predictor')
             stdout, stderr = cnn_process.communicate()
+            end_cnn = time.time()
+            cnn_time = end_cnn - start_cnn  # Time in seconds
+
+            # Handle CNN Output
             if stdout:
                 print("CNN Output:", stdout)
-                cnn_prediction = " " + \
-                    stdout.split('CNN Vorhersage: ')[1]
+                cnn_prediction = " " + stdout.split('CNN Vorhersage: ')[1]
             if stderr:
                 print("CNN Error:", stderr)
 
-            # Handle CRNN Process
+            # Measure CRNN Process Time
+            start_crnn = time.time()
+            crnn_process = classify(
+                annotations, 'classification-crnn.predictor')
             stdout2, stderr2 = crnn_process.communicate()
+            end_crnn = time.time()
+            crnn_time = end_crnn - start_crnn  # Time in seconds
+
+            # Handle CRNN Output
             if stdout2:
                 print("CRNN Output:", stdout2)
-                crnn_prediction = " " + \
-                    stdout2.split('CRNN Vorhersage: ')[1]
+                crnn_prediction = " " + stdout2.split('CRNN Vorhersage: ')[1]
             if stderr2:
                 print("CRNN Error:", stderr2)
         else:
@@ -114,6 +123,8 @@ cnn_prediction = "Other?"
 crnn_prediction = "Other?"
 worker_thread.start()
 producer_thread.start()
+cnn_time = float('inf')
+crnn_time = float('inf')
 
 
 def main():
@@ -124,6 +135,8 @@ def main():
     global annotations
     global cnn_prediction
     global crnn_prediction
+    global cnn_time
+    global crnn_time
     annotationNumber = -1
     annotationStart = False
     lastDel = False
@@ -312,7 +325,7 @@ def main():
         # debug_image = draw_point_history(debug_image, point_history)
         debug_image = draw_annotation_history(debug_image, annotations)
         debug_image = draw_info(
-            debug_image, fps, mode, number, cnn_prediction, crnn_prediction)
+            debug_image, fps, mode, number, cnn_prediction, crnn_prediction, cnn_time, crnn_time)
 
         if all(len(sublist) == 0 for sublist in annotations):
             debug_image = draw_instruction(debug_image)
@@ -511,19 +524,30 @@ def draw_instruction(image):
     return image
 
 
-def draw_info(image, fps, mode, number, cnn_predicted_class, crnn_predicted_class):
+def draw_info(image, fps, mode, number, cnn_predicted_class, crnn_predicted_class, cnn_time, crnn_time):
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (255, 255, 255), 2, cv.LINE_AA)
+
     cv.putText(image, "CNN_PREDICTED_CLASS:" + str(cnn_predicted_class), (10, 65), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "CNN_PREDICTED_CLASS:" + str(cnn_predicted_class), (10, 65), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (255, 255, 255), 2, cv.LINE_AA)
+    cv.putText(image, "(" + str(f"{cnn_time:.2f}") + " seconds)", (600, 65), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (0, 0, 0), 4, cv.LINE_AA)
+    cv.putText(image, "(" + str(f"{cnn_time:.2f}") + " seconds)", (600, 65), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (255, 255, 255), 2, cv.LINE_AA)
+
     cv.putText(image, "CRNN_PREDICTED_CLASS:" + str(crnn_predicted_class), (10, 100), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "CRNN_PREDICTED_CLASS:" + str(crnn_predicted_class), (10, 100), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (255, 255, 255), 2, cv.LINE_AA)
+    cv.putText(image, "(" + str(f"{crnn_time:.2f}") + " seconds)", (600, 100), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (0, 0, 0), 4, cv.LINE_AA)
+    cv.putText(image, "(" + str(f"{crnn_time:.2f}") + " seconds)", (600, 100), cv.FONT_HERSHEY_SIMPLEX,
+               1.0, (255, 255, 255), 2, cv.LINE_AA)
+
     mode_string = ['Logging Key Point', 'Logging Point History']
     if 1 <= mode <= 2:
         cv.putText(image, "MODE:" + mode_string[mode - 1], (10, 90),
