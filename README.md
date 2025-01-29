@@ -30,9 +30,9 @@ Deletes last annotation of Drawing <br>
 Deletes whole Drawing <br>
 
 ## Custom Aliases for frequent use
-alias cdvdraw='cd {your_path_to_videodraw}'
-alias activate='source venv/bin/activate'
-alias vdraw='python interface/app.py'
-alias vdrawinit='cdvdraw activate vdraw'
+alias cdvdraw='cd {your_path_to_videodraw}' <br>
+alias activate='source venv/bin/activate' <br>
+alias vdraw='python interface/app.py' <br>
+alias vdrawinit='cdvdraw activate vdraw' <br>
 
 
