@@ -11,15 +11,19 @@
 
 ## Interface
 Drawing Interface for User with 4 possible hand gestures:
+
 1. Neutral 
 ![NeutralPose](./Neutral.png)
 Neutral gesture which doesnt affect Drawing
+
 2. Draw
 ![DrawPose](./Draw.png)
 Gesture for drawing, draws at the position of the index finger
+
 3. DeleteLast
 ![DeleteLastPose](./DeleteLast.png)
 Deletes last annotation of Drawing
+
 4. DeleteAll
 ![DeleteAllPose](./DeleteAll.png)
 Deletes whole Drawing
