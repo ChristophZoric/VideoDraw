@@ -51,7 +51,7 @@ def producer(annotations):
     global crnn_prediction
     last_annotations = None
     while True:
-        time.sleep(2)
+        time.sleep(0.5)
         with annotations_lock:
             if any(len(sublist) > 0 for sublist in annotations):
                 annotations_copy = copy.deepcopy(annotations)
@@ -104,7 +104,7 @@ def classification_worker():
             time.sleep(0.1)
 
 
-classification_queue = queue.Queue()
+classification_queue = queue.Queue(maxsize=2)
 annotations = [[]]
 annotations_lock = threading.Lock()
 worker_thread = threading.Thread(target=classification_worker, daemon=True)
@@ -201,44 +201,6 @@ def main():
         key = cv.waitKey(5)
         if key == ord('q'):  # ESC
             break
-
-#        if key == 13:
-            # if cnn_process is None or cnn_process.poll() is not None:
-            # print("Starting CNN subprocess")
-            # cnn_process = classify(
-            # annotations, 'classification-cnn.predictor_interface')
-            # if crnn_process is None or crnn_process.poll() is not None:
-            # print("Starting CRNN subprocess")
-            # crnn_process = classify(
-            # annotations, 'classification-crnn.predictor_interface')
-        # if cnn_process is None:
-            # pass
-        # elif cnn_process.poll() is None:
-            # pass
-        # else:
-            # stdout, stderr = cnn_process.communicate()
-            # print("CNN Subprocess output:", stdout)
-            # if stderr:
-            # print("CNN Subprocess error:", stderr)
-            # if stdout:
-            # cnn_predicted_class = " " + \
-            # stdout.split('CNN Vorhersage: ')[1]
-            # cnn_process = None
-
-#        if crnn_process is None:
-            # pass
-        # elif crnn_process.poll() is None:
-            # pass
-        # else:
-            # stdout2, stderr2 = crnn_process.communicate()
-            # print("CRNN Subprocess output:", stdout2)
-            # if stderr2:
-            # print("CNN Subprocess error:", stderr2)
-            # if stdout2:
-            # crnn_predicted_class = " " + \
-            # stdout2.split('CRNN Vorhersage: ')[1]
-            # crnn_process = None
-
         number, mode = select_mode(key, mode)
 
         # Camera capture #####################################################
@@ -361,7 +323,7 @@ def main():
 
 
 def classify(annotations, script_path):
-    with open("classification/annotations_data.txt", "w") as f:
+    with open("annotations_data.txt", "w") as f:
         f.write(str(annotations))
         f.flush()
     process = subprocess.Popen(

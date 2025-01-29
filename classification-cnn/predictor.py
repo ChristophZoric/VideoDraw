@@ -32,7 +32,7 @@ def load_annotations_from_file(file_path):
 
 
 if __name__ == "__main__":
-    file_path = 'classification/annotations_data.txt'
+    file_path = 'annotations_data.txt'
 
     annotations = load_annotations_from_file(file_path)
 

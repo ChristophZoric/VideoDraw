@@ -2,7 +2,7 @@ venv
 classification/_pycache_
 classification/saved_model
 data
-classification/annotations_data.txt
+annotations_data.txt
 classification/converted_data.npy
 
 # interface .gitignore
