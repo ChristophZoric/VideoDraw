@@ -3,7 +3,7 @@
 ## Dependencies
 - python3
 - pip
-- install requirements.txt via pip
+- install requirements.txt via pip (pip install -r requirements.txt)
 
 ## How to start
 - To run app, python3 interface/app.py
@@ -12,14 +12,22 @@
 ## Interface
 Drawing Interface for User with 4 possible hand gestures:
 1. Neutral 
-PLACEHOLDER FOR PICTURE
+![NeutralPose](./Neutral.png)
 Neutral gesture which doesnt affect Drawing
 2. Draw
-PLACEHOLDER FOR PICTURE
+![DrawPose](./Draw.png)
 Gesture for drawing, draws at the position of the index finger
 3. DeleteLast
-PLACEHOLDER FOR PICTURE
+![DeleteLastPose](./DeleteLast.png)
 Deletes last annotation of Drawing
 4. DeleteAll
-PLACEHOLDER FOR PICTURE
+![DeleteAllPose](./DeleteAll.png)
 Deletes whole Drawing
+
+## Custom Aliases for frequent use
+alias cdvdraw='cd {your_path_to_videodraw}'
+alias activate='source venv/bin/activate'
+alias vdraw='python interface/app.py'
+alias vdrawinit='cdvdraw activate vdraw'
+
+
