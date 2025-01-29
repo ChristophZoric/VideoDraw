@@ -10,7 +10,7 @@
 - in general, every executable needs to be executed from root
 
 ## Interface
-The Hand recognition Model is based on Kazuhito Takahashis Model https://github.com/Kazuhito00/hand-gesture-recognition-using-mediapipe.git and was modified.
+The Hand recognition Model is based on Kazuhito Takahashis Model https://github.com/Kazuhito00/hand-gesture-recognition-using-mediapipe.git and was modified. <br>
 Drawing Interface for User with 4 possible hand gestures:
 
 1. Neutral <br>
