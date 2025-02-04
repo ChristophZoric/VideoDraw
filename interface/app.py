@@ -2,15 +2,11 @@
 # -*- coding: utf-8 -*-
 import csv
 import copy
-import argparse
-import itertools
 from collections import Counter
 from collections import deque
 import subprocess
-import traceback
 
 import cv2 as cv
-import numpy as np
 import mediapipe as mp
 
 from utils import CvFpsCalc
@@ -26,6 +22,9 @@ import time
 import utils.draw_utils as du
 import utils.calc_utils as cu
 import utils.args_util as au
+from utils.env import BUFFER_COUNTER, HISTORY_LENGTH, FRAME_COUNTER, FRAME_SKIP
+
+# TODO: DELETE ALL FROM QUEUE WHEN DELETEALL
 
 
 def producer(annotations):
@@ -119,14 +118,13 @@ def main():
     global crnn_prediction
     global cnn_time
     global crnn_time
+    global FRAME_COUNTER
+    global FRAME_SKIP
+    global BUFFER_COUNTER
+    global HISTORY_LENGTH
     annotationNumber = -1
     annotationStart = False
     lastDel = False
-
-    frame_counter = 0
-    frame_skip = 10
-
-    buffer_counter = 10
 
     cap_device = args.device
     cap_width = args.width
@@ -175,11 +173,10 @@ def main():
     cvFpsCalc = CvFpsCalc(buffer_len=10)
 
     # Coordinate history #################################################################
-    history_length = 16
-    point_history = deque(maxlen=history_length)
+    point_history = deque(maxlen=HISTORY_LENGTH)
 
     # Finger gesture history ################################################
-    finger_gesture_history = deque(maxlen=history_length)
+    finger_gesture_history = deque(maxlen=HISTORY_LENGTH)
 
     #  ########################################################################
     mode = 0
@@ -190,7 +187,7 @@ def main():
     while True:
         fps = cvFpsCalc.get()
 
-        frame_counter += 1
+        FRAME_COUNTER += 1
 
         ## Process Key (ESC: end) #################################################
         key = cv.waitKey(5)
@@ -234,12 +231,12 @@ def main():
                 # Hand sign classification
                 hand_sign_id = keypoint_classifier(pre_processed_landmark_list)
                 if hand_sign_id == 0:
-                    buffer_counter += 1
+                    BUFFER_COUNTER += 1
                     annotationStart = False
 
                 elif hand_sign_id == 1:  # Draw gesture
-                    if buffer_counter >= 0 and buffer_counter <= 5:
-                        buffer_counter = -1
+                    if BUFFER_COUNTER >= 0 and BUFFER_COUNTER <= 5:
+                        BUFFER_COUNTER = -1
                         if lastDel is True:
                             annotationNumber += 1
                             annotations.append([])
@@ -250,7 +247,7 @@ def main():
                         annotationStart = True
                         continue
                     else:
-                        buffer_counter = -1
+                        BUFFER_COUNTER = -1
                     if annotationStart is False:
                         annotationNumber += 1
                         if lastDel is True:
@@ -263,13 +260,13 @@ def main():
                         tuple(landmark_list[8])
                     )
 
-                elif hand_sign_id == 2 and annotations and frame_counter % frame_skip == 0:
+                elif hand_sign_id == 2 and annotations and FRAME_COUNTER % FRAME_SKIP == 0:
                     annotations.pop()
                     annotationNumber -= 1
                     annotationStart = False
                     lastDel = True
 
-                elif hand_sign_id == 3 and frame_counter % frame_skip == 0:
+                elif hand_sign_id == 3 and FRAME_COUNTER % FRAME_SKIP == 0:
                     annotations.clear()
                     annotations.append([])
                     annotationNumber = -1
@@ -282,7 +279,7 @@ def main():
                 # Finger gesture classification
                 finger_gesture_id = 0
                 point_history_len = len(pre_processed_point_history_list)
-                if point_history_len == (history_length * 2):
+                if point_history_len == (HISTORY_LENGTH * 2):
                     finger_gesture_id = point_history_classifier(
                         pre_processed_point_history_list)
 
