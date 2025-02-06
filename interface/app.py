@@ -22,7 +22,9 @@ import time
 import utils.draw_utils as du
 import utils.calc_utils as cu
 import utils.args_util as au
+import utils.hand_sign_bools as bools
 from utils.env import BUFFER_COUNTER, HISTORY_LENGTH, FRAME_COUNTER, FRAME_SKIP
+
 
 # TODO: DELETE ALL FROM QUEUE WHEN DELETEALL
 
@@ -230,11 +232,11 @@ def main():
 
                 # Hand sign classification
                 hand_sign_id = keypoint_classifier(pre_processed_landmark_list)
-                if hand_sign_id == 0:
+                if bools.isNeutralSign(hand_sign_id):
                     BUFFER_COUNTER += 1
                     annotationStart = False
 
-                elif hand_sign_id == 1:  # Draw gesture
+                elif bools.isDrawSign(hand_sign_id):
                     if BUFFER_COUNTER >= 0 and BUFFER_COUNTER <= 5:
                         BUFFER_COUNTER = -1
                         if lastDel is True:
@@ -260,13 +262,13 @@ def main():
                         tuple(landmark_list[8])
                     )
 
-                elif hand_sign_id == 2 and annotations and FRAME_COUNTER % FRAME_SKIP == 0:
+                elif bools.isDeletLastSign(hand_sign_id, annotations, FRAME_COUNTER, FRAME_SKIP):
                     annotations.pop()
                     annotationNumber -= 1
                     annotationStart = False
                     lastDel = True
 
-                elif hand_sign_id == 3 and FRAME_COUNTER % FRAME_SKIP == 0:
+                elif bools.isDeletAllSign(hand_sign_id, annotations, FRAME_COUNTER, FRAME_SKIP):
                     annotations.clear()
                     annotations.append([])
                     annotationNumber = -1
