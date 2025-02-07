@@ -96,6 +96,18 @@ def classification_worker():
             time.sleep(0.1)
 
 
+def clean_classification_queue():
+    while not classification_queue.empty():
+        classification_queue.get()
+        time.sleep(0.1)
+
+
+def start_clean_classification_queue():
+    clean_thread = threading.Thread(
+        target=clean_classification_queue, daemon=True)
+    clean_thread.start()
+
+
 classification_queue = queue.Queue(maxsize=2)
 annotations = [[]]
 annotations_lock = threading.Lock()
@@ -273,6 +285,7 @@ def main():
                     annotations.append([])
                     annotationNumber = -1
                     annotationStart = False
+                    start_clean_classification_queue()
 
                 else:
                     point_history.append([0, 0])
