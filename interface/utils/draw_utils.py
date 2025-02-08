@@ -50,6 +50,10 @@ def draw_instruction(image):
 
 
 def draw_info(image, fps, mode, number, cnn_predicted_class, crnn_predicted_class, cnn_time, crnn_time):
+    if cnn_predicted_class == "Other?":
+        cnn_time = float('inf')
+    if crnn_predicted_class == "Other?":
+        crnn_time = float('inf')
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
