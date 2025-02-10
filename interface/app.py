@@ -26,9 +26,6 @@ import utils.hand_sign_bools as bools
 from utils.env import BUFFER_COUNTER, HISTORY_LENGTH, FRAME_COUNTER, FRAME_SKIP
 
 
-# TODO: DELETE ALL FROM QUEUE WHEN DELETEALL
-
-
 def producer(annotations):
     global cnn_prediction
     global crnn_prediction
@@ -147,8 +144,6 @@ def main():
     use_static_image_mode = args.use_static_image_mode
     min_detection_confidence = args.min_detection_confidence
     min_tracking_confidence = args.min_tracking_confidence
-
-    use_brect = True
 
     # Camera preparation ###############################################################
     cap = cv.VideoCapture(cap_device)
