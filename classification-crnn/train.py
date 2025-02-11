@@ -8,6 +8,7 @@ from collections import Counter
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+from tensorflow.keras.models import load_model
 
 # Funktion zur Visualisierung der Sequenzen
 def visualize_all_classes(sequences, labels, class_names):
@@ -48,6 +49,8 @@ if __name__ == "__main__":
         'data-ndjsons/plane.ndjson'
     ]
 
+    model_path = os.path.join('classification-crnn/crnn_quickdraw_model.h5')
+
     sequences, labels = load_quickdraw_data(file_paths, max_samples_per_class=5000)
     print("Klassenverteilung nach dem Laden:", Counter(labels))
 
@@ -70,12 +73,14 @@ if __name__ == "__main__":
         random_state=42
     )
 
-    model = build_crnn_model(
-        input_shape=(max_length, 2),
-        num_classes=len(label_encoder.classes_),
-        lstm_units=64,
-        dropout_rate=0.3
-    )
+    # Prüfen, ob ein gespeichertes Modell existiert
+    if os.path.exists(model_path):
+        print(f"Lade bestehendes Modell aus {model_path}...")
+        model = load_model(model_path)
+    else:
+        print("Kein bestehendes Modell gefunden. Erstelle neues Modell...")
+        model = build_crnn_model(input_shape=(max_length, 2), num_classes=len(label_encoder.classes_),
+                                 lstm_units=64, dropout_rate=0.3)
     
     model.compile(
         optimizer=Adam(learning_rate=0.001),

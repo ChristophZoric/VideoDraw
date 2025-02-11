@@ -2,7 +2,16 @@ from model import build_model, load_and_preprocess_data_from_ndjson
 import numpy as np
 import os
 from sklearn.metrics import classification_report, confusion_matrix
+from tensorflow.keras.models import load_model
 import matplotlib.pyplot as plt
+
+def load_model_if_exists(model_path):
+    """Lädt ein vorhandenes Modell oder gibt None zurück."""
+    if os.path.exists(model_path):
+        print(f"Bestehendes Modell gefunden. Lade {model_path} ...")
+        return load_model(model_path)
+    print("Kein bestehendes Modell gefunden. Ein neues Modell wird erstellt.")
+    return None
 
 if __name__ == "__main__":
     file_paths = [
@@ -21,7 +30,15 @@ if __name__ == "__main__":
         random_state=42
     )
 
-    model = build_model(input_shape=(36,36,1), num_classes=5, dropout_rate=0.3)
+    save_dir = 'classification-cnn'
+    os.makedirs(save_dir, exist_ok=True)
+    model_path = os.path.join(save_dir, 'cnn_quickdraw_model.h5')
+
+    model = load_model_if_exists(model_path)
+
+    if model is None:
+        # Neues Modell erstellen
+        model = build_model(input_shape=(36,36,1), num_classes=5)
 
     history_cnn = model.fit(
         train_data, train_labels,
