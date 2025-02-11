@@ -7,7 +7,6 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.utils import to_categorical
 
-
 def load_quickdraw_data(file_paths, max_samples_per_class=5000):
     sequences = []
     labels = []
@@ -23,9 +22,12 @@ def load_quickdraw_data(file_paths, max_samples_per_class=5000):
 
                 data = json.loads(line)
                 if data['recognized']:
-                    sequence = data['drawing']
+                    sequence = data['drawing']  # Originalsequenz
+                    half_strokes = sequence[:len(sequence) // 2]  # Erste Hälfte der Striche
                     flat_sequence = []
-                    for stroke in sequence:
+
+                    # Flatten der Sequenz
+                    for stroke in half_strokes:
                         flat_sequence.extend(list(zip(stroke[0], stroke[1]))) 
 
                     sequences.append(flat_sequence)
@@ -34,10 +36,17 @@ def load_quickdraw_data(file_paths, max_samples_per_class=5000):
 
     return sequences, labels
 
+
 def preprocess_sequences(sequences, max_length=128):
     normalized_sequences = [np.array(seq) / 255.0 for seq in sequences]
 
-    padded_sequences = pad_sequences(normalized_sequences, maxlen=max_length, dtype='float32', padding='post', truncating='post')
+    padded_sequences = pad_sequences(
+        normalized_sequences,
+        maxlen=max_length,
+        dtype='float32',
+        padding='post',
+        truncating='post'
+    )
     return padded_sequences
 
 

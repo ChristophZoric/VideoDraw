@@ -6,8 +6,11 @@ from collections import Counter
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Flatten, Dropout
 from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.optimizers import Adam
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
-def build_model(input_shape=(36, 36, 1), num_classes=5):
+def build_model(input_shape=(36, 36, 1), num_classes=5, dropout_rate=0.3):
     model = Sequential([
         Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
         MaxPooling2D(pool_size=(2, 2)),
@@ -17,10 +20,14 @@ def build_model(input_shape=(36, 36, 1), num_classes=5):
         MaxPooling2D(pool_size=(2, 2)),
         Flatten(),
         Dense(128, activation='relu'),
-        Dropout(0.5),
+        Dropout(dropout_rate),
         Dense(num_classes, activation='softmax')
     ])
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(
+        optimizer=Adam(learning_rate=0.001),
+        loss='categorical_crossentropy',
+        metrics=['accuracy']
+    )
     return model
 
 def rasterize_sequence(sequence, img_size=36):
@@ -60,7 +67,8 @@ def load_ndjson_data(file_paths, max_samples_per_class=5000):
                 data = json.loads(line)
                 if data['recognized']:
                     flat_sequence = []
-                    for stroke in data['drawing']:
+                    half_strokes = data['drawing'][:len(data['drawing']) // 2]
+                    for stroke in half_strokes:
                         xs = stroke[0]
                         ys = stroke[1]
                         for x, y in zip(xs, ys):
@@ -69,7 +77,30 @@ def load_ndjson_data(file_paths, max_samples_per_class=5000):
                     class_count += 1
     return sequences
 
-def load_and_preprocess_data_from_ndjson(file_paths, num_classes=5, max_samples_per_class=5000, test_size=0.2):
+def show_samples(data, labels, class_names, num_samples=5):
+    unique_classes = np.unique(np.argmax(labels, axis=1))  # Finde vorhandene Klassen
+    num_classes = len(unique_classes)
+
+    fig, axes = plt.subplots(1, num_classes, figsize=(10, 5))
+    if num_classes == 1:
+        axes = [axes]  # Falls nur eine Klasse vorhanden ist, in eine Liste packen
+
+    for i, class_idx in enumerate(unique_classes):
+        class_samples = np.where(np.argmax(labels, axis=1) == class_idx)[0]
+        if len(class_samples) == 0:
+            continue  # Falls keine Samples für eine Klasse existieren, überspringen
+        sample_idx = np.random.choice(class_samples)
+        img = data[sample_idx].squeeze()
+        label = class_names[class_idx]
+
+        axes[i].imshow(img, cmap='gray')
+        axes[i].set_title(label)
+        axes[i].axis('off')
+
+    plt.show()
+
+
+def load_and_preprocess_data_from_ndjson(file_paths, num_classes=5, max_samples_per_class=5000, test_size=0.2, random_state=42):
     sequences = load_ndjson_data(file_paths, max_samples_per_class)
     class_names = sorted(list(set([c for _, c in sequences])))
     class_to_idx = {c: i for i, c in enumerate(class_names)}
@@ -86,6 +117,11 @@ def load_and_preprocess_data_from_ndjson(file_paths, num_classes=5, max_samples_
 
     data = np.array(data)
     labels = to_categorical(labels, num_classes=num_classes)
+
+    train_data, val_data, train_labels, val_labels = train_test_split(
+        data, labels, test_size=test_size, random_state=random_state
+    )
+    show_samples(train_data, train_labels, class_names)
 
     # Durchmischen
     indices = np.arange(len(data))
