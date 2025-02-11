@@ -1,7 +1,16 @@
 from model import build_model, load_and_preprocess_data_from_ndjson
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 import os
+from tensorflow.keras.models import load_model
+import matplotlib.pyplot as plt
+
+def load_model_if_exists(model_path):
+    """Lädt ein vorhandenes Modell oder gibt None zurück."""
+    if os.path.exists(model_path):
+        print(f"Bestehendes Modell gefunden. Lade {model_path} ...")
+        return load_model(model_path)
+    print("Kein bestehendes Modell gefunden. Ein neues Modell wird erstellt.")
+    return None
 
 if __name__ == "__main__":
     file_paths = [
@@ -12,21 +21,38 @@ if __name__ == "__main__":
         'data-ndjsons/plane.ndjson'
     ]
 
+    # Daten laden
     (train_data, train_labels), (val_data, val_labels), class_names = load_and_preprocess_data_from_ndjson(
-        file_paths, num_classes=5, max_samples_per_class=5000)
+        file_paths, 
+        num_classes=5, 
+        max_samples_per_class=5000,
+        test_size=0.2,
+    )
 
-    datagen = ImageDataGenerator(width_shift_range=0.1, height_shift_range=0.1)
-    datagen.fit(train_data)
-
-    model = build_model(input_shape=(36,36,1), num_classes=5)
-    model.fit(datagen.flow(train_data, train_labels, batch_size=32),
-              validation_data=(val_data, val_labels),
-              epochs=5)
-
-    # Speicher das Modell und die Klassen
     save_dir = 'classification-cnn'
     os.makedirs(save_dir, exist_ok=True)
     model_path = os.path.join(save_dir, 'cnn_quickdraw_model.h5')
+
+    # Prüfen, ob ein trainiertes Modell existiert
+    model = load_model_if_exists(model_path)
+
+    if model is None:
+        # Neues Modell erstellen
+        model = build_model(input_shape=(36,36,1), num_classes=5)
+
+    # Weitertrainieren oder neu trainieren
+    history_cnn = model.fit(
+        train_data, train_labels,
+        validation_data=(val_data, val_labels),
+        epochs=5,
+        batch_size=32
+    )
+
+    # Speichern des Modells und der Metadaten
     model.save(model_path)
     np.save(os.path.join(save_dir, 'label_classes.npy'), class_names)
-    print("Modell und Klassen erfolgreich gespeichert!")
+    np.save(os.path.join(save_dir, 'history_cnn.npy'), history_cnn.history)
+    np.save(os.path.join(save_dir, 'val_data.npy'), val_data)
+    np.save(os.path.join(save_dir, 'val_labels.npy'), val_labels)
+
+    print("CNN Modell, Klassen, Trainings-Historie und Validierungsdaten erfolgreich gespeichert!")
