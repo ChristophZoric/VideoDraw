@@ -78,14 +78,25 @@ def load_ndjson_data(file_paths, max_samples_per_class=5000):
     return sequences
 
 def show_samples(data, labels, class_names, num_samples=5):
-    plt.figure(figsize=(10, 5))
-    for i in range(num_samples):
-        img = data[i].squeeze()  # Entferne die Kanal-Dimension (36, 36, 1) -> (36, 36)
-        label = class_names[np.argmax(labels[i])]
-        plt.subplot(1, num_samples, i + 1)
-        plt.imshow(img, cmap='gray')
-        plt.title(label)
-        plt.axis('off')
+    unique_classes = np.unique(np.argmax(labels, axis=1))  # Finde vorhandene Klassen
+    num_classes = len(unique_classes)
+    
+    fig, axes = plt.subplots(1, num_classes, figsize=(10, 5))
+    if num_classes == 1:
+        axes = [axes]  # Falls nur eine Klasse vorhanden ist, in eine Liste packen
+
+    for i, class_idx in enumerate(unique_classes):
+        class_samples = np.where(np.argmax(labels, axis=1) == class_idx)[0]
+        if len(class_samples) == 0:
+            continue  # Falls keine Samples für eine Klasse existieren, überspringen
+        sample_idx = np.random.choice(class_samples)
+        img = data[sample_idx].squeeze()
+        label = class_names[class_idx]
+
+        axes[i].imshow(img, cmap='gray')
+        axes[i].set_title(label)
+        axes[i].axis('off')
+
     plt.show()
 
 
