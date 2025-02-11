@@ -61,29 +61,25 @@ def classification_worker():
             annotations = classification_queue.get()
             print("Classifying annotations:", annotations)
 
-            # Measure CNN Process Time
             start_cnn = time.time()
             cnn_process = classify(annotations, 'classification-cnn.predictor')
             stdout, stderr = cnn_process.communicate()
             end_cnn = time.time()
-            cnn_time = end_cnn - start_cnn  # Time in seconds
+            cnn_time = end_cnn - start_cnn
 
-            # Handle CNN Output
             if stdout:
                 print("CNN Output:", stdout)
                 cnn_prediction = " " + stdout.split('CNN Vorhersage: ')[1]
             if stderr:
                 print("CNN Error:", stderr)
 
-            # Measure CRNN Process Time
             start_crnn = time.time()
             crnn_process = classify(
                 annotations, 'classification-crnn.predictor')
             stdout2, stderr2 = crnn_process.communicate()
             end_crnn = time.time()
-            crnn_time = end_crnn - start_crnn  # Time in seconds
+            crnn_time = end_crnn - start_crnn
 
-            # Handle CRNN Output
             if stdout2:
                 print("CRNN Output:", stdout2)
                 crnn_prediction = " " + stdout2.split('CRNN Vorhersage: ')[1]
@@ -189,9 +185,6 @@ def main():
 
     #  ########################################################################
     mode = 0
-
-    cnn_process = None
-    crnn_process = None
 
     while True:
         fps = cvFpsCalc.get()
