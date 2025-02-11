@@ -23,8 +23,8 @@ if __name__ == "__main__":
     ]
 
     (train_data, train_labels), (val_data, val_labels), class_names = load_and_preprocess_data_from_ndjson(
-        file_paths, 
-        num_classes=5, 
+        file_paths,
+        num_classes=5,
         max_samples_per_class=5000,
         test_size=0.2,
         random_state=42
@@ -52,10 +52,10 @@ if __name__ == "__main__":
     model_path = os.path.join(save_dir, 'cnn_quickdraw_model.h5')
     model.save(model_path)
     np.save(os.path.join(save_dir, 'label_classes.npy'), class_names)
-    
+
     np.save(os.path.join(save_dir, 'history_cnn.npy'), history_cnn.history)
-    
+
     np.save(os.path.join(save_dir, 'val_data.npy'), val_data)
     np.save(os.path.join(save_dir, 'val_labels.npy'), val_labels)
-    
+
     print("CNN Modell, Klassen, Trainings-Historie und Validierungsdaten erfolgreich gespeichert!")

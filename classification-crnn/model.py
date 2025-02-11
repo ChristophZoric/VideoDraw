@@ -25,7 +25,7 @@ def load_quickdraw_data(file_paths, max_samples_per_class=5000):
                     sequence = data['drawing']  # Originalsequenz
                     half_strokes = sequence[:len(sequence) // 2]  # Erste Hälfte der Striche
                     flat_sequence = []
-                    
+
                     # Flatten der Sequenz
                     for stroke in half_strokes:
                         flat_sequence.extend(list(zip(stroke[0], stroke[1]))) 

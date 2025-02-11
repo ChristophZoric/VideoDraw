@@ -23,7 +23,7 @@ def visualize_all_classes(sequences, labels, class_names):
     for i, (class_name, seq_list) in enumerate(class_to_sequences.items()):
         if seq_list:  # Falls es Sequenzen für diese Klasse gibt
             sequence = seq_list[0]  # Nimm die erste Sequenz dieser Klasse
-            
+
             # **Sicherstellen, dass die Sequenz nicht leer ist**
             if len(sequence) > 0:
                 # Extrahiere die Punkte
@@ -67,9 +67,9 @@ if __name__ == "__main__":
     visualize_all_classes(sequences, one_hot_labels, label_encoder.classes_)
 
     train_data, val_data, train_labels, val_labels = train_test_split(
-        processed_sequences, 
-        one_hot_labels, 
-        test_size=0.2, 
+        processed_sequences,
+        one_hot_labels,
+        test_size=0.2,
         random_state=42
     )
 
@@ -81,7 +81,7 @@ if __name__ == "__main__":
         print("Kein bestehendes Modell gefunden. Erstelle neues Modell...")
         model = build_crnn_model(input_shape=(max_length, 2), num_classes=len(label_encoder.classes_),
                                  lstm_units=64, dropout_rate=0.3)
-    
+
     model.compile(
         optimizer=Adam(learning_rate=0.001),
         loss='categorical_crossentropy',

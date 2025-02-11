@@ -67,7 +67,7 @@ def load_ndjson_data(file_paths, max_samples_per_class=5000):
                 data = json.loads(line)
                 if data['recognized']:
                     flat_sequence = []
-                    half_strokes = data['drawing'][:len(data['drawing']) // 2]  
+                    half_strokes = data['drawing'][:len(data['drawing']) // 2]
                     for stroke in half_strokes:
                         xs = stroke[0]
                         ys = stroke[1]
@@ -80,7 +80,7 @@ def load_ndjson_data(file_paths, max_samples_per_class=5000):
 def show_samples(data, labels, class_names, num_samples=5):
     unique_classes = np.unique(np.argmax(labels, axis=1))  # Finde vorhandene Klassen
     num_classes = len(unique_classes)
-    
+
     fig, axes = plt.subplots(1, num_classes, figsize=(10, 5))
     if num_classes == 1:
         axes = [axes]  # Falls nur eine Klasse vorhanden ist, in eine Liste packen

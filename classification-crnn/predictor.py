@@ -4,10 +4,13 @@ from sklearn.preprocessing import LabelEncoder
 import ast
 import numpy as np
 
+
 def preprocess_sequences(sequences, max_length=128):
     normalized_sequences = [np.array(seq) / 255.0 for seq in sequences]
-    padded_sequences = pad_sequences(normalized_sequences, maxlen=max_length, dtype='float32', padding='post', truncating='post')
+    padded_sequences = pad_sequences(
+        normalized_sequences, maxlen=max_length, dtype='float32', padding='post', truncating='post')
     return padded_sequences
+
 
 class Predictor:
     def __init__(self, model_path='classification-crnn/crnn_quickdraw_model.h5', label_path='classification-crnn/label_classes.npy'):
@@ -16,10 +19,12 @@ class Predictor:
         self.label_encoder.classes_ = np.load(label_path)
 
     def predict(self, drawing_sequence):
-        processed_sequence = preprocess_sequences([drawing_sequence], max_length=128)
+        processed_sequence = preprocess_sequences(
+            [drawing_sequence], max_length=128)
         prediction = self.model.predict(processed_sequence)
         predicted_class = np.argmax(prediction[0])
         return self.label_encoder.inverse_transform([predicted_class])[0]
+
 
 def load_annotations_from_file(file_path):
     with open(file_path, 'r') as f:
@@ -29,7 +34,7 @@ def load_annotations_from_file(file_path):
 
 
 if __name__ == "__main__":
-    file_path = 'classification/annotations_data.txt'
+    file_path = 'annotations_data.txt'
 
     annotations = load_annotations_from_file(file_path)
 
