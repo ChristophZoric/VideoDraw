@@ -14,19 +14,19 @@ The Hand recognition Model is based on Kazuhito Takahashis Model https://github.
 Drawing Interface for User with 4 possible hand gestures:
 
 1. Neutral <br>
-![NeutralPose](./Neutral.png) <br>
+![NeutralPose](./gesture-pictures/Neutral.png) <br>
 Neutral gesture which doesnt affect Drawing <br>
 
 2. Draw <br>
-![DrawPose](./Draw.png) <br>
+![DrawPose](./gesture-pictures/Draw.png) <br>
 Gesture for drawing, draws at the position of the index finger <br>
 
 3. DeleteLast <br>
-![DeleteLastPose](./DeleteLast.png) <br>
+![DeleteLastPose](./gesture-pictures/DeleteLast.png) <br>
 Deletes last annotation of Drawing <br>
 
 4. DeleteAll <br>
-![DeleteAllPose](./DeleteAll.png) <br>
+![DeleteAllPose](./gesture-pictures/DeleteAll.png) <br>
 Deletes whole Drawing <br>
 
 ## Custom Aliases for frequent use
